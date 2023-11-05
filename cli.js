@@ -12,7 +12,6 @@ const {
 } = require('./commands');
 const theme = require('./theme');
 
-//  Create the cli.
 const program = new Command();
 
 program
@@ -26,9 +25,13 @@ program.command('list')
   .action(async () => {
     const boxes = await list();
     boxes.forEach(box => {
-      console.log(`${box.name} (${theme.boxId(box.boxId)}): ${theme.state(box.status)}`);
-      console.log(`       DNS: ${box.instance.PublicDnsName}`);
-      console.log(`        IP: ${box.instance.PublicIpAddress}`);
+      console.log(`${theme.boxId(box.boxId)}: ${theme.state(box.status)}`);
+      console.log(`  Name: ${box.name}`);
+      //  Only show DNS details if they exist (i.e. if the box is running).
+      if (box.instance.PublicDnsName) {
+        console.log(`  DNS: ${box.instance.PublicDnsName}`);
+        console.log(`  IP: ${box.instance.PublicIpAddress}`);
+      }
     });
   });
 
