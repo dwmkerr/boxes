@@ -10,7 +10,7 @@ const {
   stop,
   config,
 } = require('./commands');
-const {startOrStopBoxes} = require('./get-boxes');
+const theme = require('./theme');
 
 //  Create the cli.
 const program = new Command();
@@ -23,7 +23,14 @@ program
 program.command('list')
   .alias('ls')
   .description('Show boxes')
-  .action(list);
+  .action(async () => {
+    const boxes = await list();
+    boxes.forEach(box => {
+      console.log(`${box.name} (${theme.boxId(box.boxId)}): ${theme.state(box.status)}`);
+      console.log(`       DNS: ${box.instance.PublicDnsName}`);
+      console.log(`        IP: ${box.instance.PublicIpAddress}`);
+    });
+  });
 
 program.command('config')
   .description('Show boxes CLI config')
@@ -42,11 +49,27 @@ program.command('connect')
 program.command('start')
   .description('Start a box')
   .argument('<boxId>', 'id of the box, e.g: "steambox"')
-  .action(start);
+  .action(async (boxId) => {
+    const result = await start(boxId);
+    result.forEach(transition => {
+      const {
+        boxId, instanceId, currentState, previousState
+      } = transition;
+      console.log(`  ${theme.boxId(boxId)} (${instanceId}): ${theme.state(previousState)} -> ${theme.state(currentState)}`);
+    });
+  });
 
 program.command('stop')
   .description('Stop a box')
   .argument('<boxId>', 'id of the box, e.g: "steambox"')
-  .action(stop);
+  .action(async (boxId) => {
+    const result = await stop(boxId);
+    result.forEach(transition => {
+      const {
+        boxId, instanceId, currentState, previousState
+      } = transition;
+      console.log(`  ${theme.boxId(boxId)} (${instanceId}): ${theme.state(previousState)} -> ${theme.state(currentState)}`);
+    });
+  });
 
 program.parse();

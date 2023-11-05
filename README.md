@@ -43,3 +43,4 @@ The Boxes CLI defaults to managing boxes with a cluster name of `boxes` by defau
 Quick and dirty task-list.
 
 - [ ] add support for openvpn server to save $10/month
+- [ ] torrent box is not mounting larger volume for storage

@@ -3,6 +3,7 @@ const cfg = require('./config');
 
 async function list() {
   const boxes = await getBoxes();
+  return boxes;
 
   //  Show the status of each box.
   boxes.forEach(box => {
@@ -37,11 +38,11 @@ async function connect(boxId) {
 }
 
 async function start(boxId) {
-  await startOrStopBoxes([boxId], true);
+  return await startOrStopBoxes([boxId], true);
 }
 
 async function stop(boxId) {
-  await startOrStopBoxes([boxId], false);
+  return await startOrStopBoxes([boxId], false);
 }
 
 async function config() {
