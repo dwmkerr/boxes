@@ -77,9 +77,9 @@ module.exports.getBoxes = async () => {
     IncludeAllInstances: true,
     Filters: [
       {
-        Name: "tag:boxes.cluster",
+        Name: "tag:boxes.boxid",
         Values: [
-          "dwmkerr",
+          "*",
         ],
       },
     ],

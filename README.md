@@ -23,24 +23,17 @@ boxes list
 npm unlink
 ```
 
-The CLI uses the current local AWS configuration and will manage any EC2 instances with the tag `boxes.cluster` that have the value `boxes`.
+The CLI uses the current local AWS configuration and will manage any EC2 instances with a tag named `boxes.boxid`. The value of the tag is the identifier used to manage the specific box.
 
 ## AWS Configuration
 
 Boxes will use whatever is the currently set local AWS configuration.
 
-Boxes manages EC2 instances that have the `boxes.cluster` tag set. The following tags are used:
-
-| Tag             | Usage                                                                |
-|-----------------|----------------------------------------------------------------------|
-| `boxes.cluster` | Used to group boxes resources into a 'cluster' of related resources. |
-| `boxes.boxid`   | The identifier of the box.                                           |
-
-The Boxes CLI defaults to managing boxes with a cluster name of `boxes` by default.
+Boxes manages EC2 instances that have a tag with the name `boxes.boxid`.
 
 ## TODO
 
 Quick and dirty task-list.
 
-- [ ] add support for openvpn server to save $10/month
+- [ ] add support for OpenVPN server to save $10/month
 - [ ] torrent box is not mounting larger volume for storage
