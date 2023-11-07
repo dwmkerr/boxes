@@ -5,6 +5,13 @@ on:
     branches:
       - main
 
+# We will build and test across a number of Node.js versions. Some steps only
+# occur for a single Node version (such as uploading coverage) - this variable
+# defines which Node version to use for these steps (which should be the current
+# Node Long-Term Support version).
+env:
+  NODE_LTS_VERSION: 20.x
+
 jobs:
   validate-main:
 
