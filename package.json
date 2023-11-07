@@ -10,7 +10,8 @@
     "test": "jest",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "test:debug": "node --inspect-brk node_modules/.bin/jest --runInBand"
+    "test:debug": "node --inspect-brk node_modules/.bin/jest --runInBand",
+    "test:cov": "jest --coverage --coverageDirectory=artifacts/coverage"
   },
   "repository": {
     "type": "git",
