@@ -1,14 +1,26 @@
 # boxes
 
-Quick access to your cloud instances.
-
-## Work in Progress
-
-This is a simple CLI I use to control a few of my cloud instances, such as an OpenVPN server, a box with Steam installed for gaming, a box for torrents and so on.
-
-This is a personal project but it is possible with a few adaptations you might be able to use it to manage your own instances. In time I may add more functionality to the project.
+Quickly turn on, turn off, list and connect to your AWS instances. Great for saving costs by running servers in the cloud and starting them only when needed.
 
 ## Quickstart
+
+Tag any AWS instance you want to control with a tag named `boxes.boxid`:
+
+![Screenshot: The AWS EC2 Instances console showing two boxes and the boxid tag](./docs/aws-instance-tags.png)
+
+In this screenshot I have two instances tagged, one with the value `steambox` (used for gaming) and one with `torrentbox` (for fast BitTorrent downloads).
+
+Install the Boxes CLI with:
+
+```bash
+npm install @dwmkerr/boxes
+```
+
+You can now list your boxes with `list` and start or stop them with `start` and `stop`:
+
+![Screen recording: TODO]()
+
+## Developer Guide
 
 Clone the repo, install dependencies, link, then the `boxes` command will be available:
 
@@ -35,5 +47,8 @@ Boxes manages EC2 instances that have a tag with the name `boxes.boxid`.
 
 Quick and dirty task-list.
 
+- [ ] screen recording of boxes list / stop / start / connect
+- [ ] document how 'connect' works
+- [ ] build / lint / test / deploy pipeline
 - [ ] add support for OpenVPN server to save $10/month
 - [ ] torrent box is not mounting larger volume for storage
