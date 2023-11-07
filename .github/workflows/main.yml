@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+# Release Please needs permisisons to write commits and open PRs.
+permissions:
+  contents: write
+  pull-requests: write
+
 # We will build and test across a number of Node.js versions. Some steps only
 # occur for a single Node version (such as uploading coverage) - this variable
 # defines which Node version to use for these steps (which should be the current
