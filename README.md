@@ -49,6 +49,19 @@ Boxes will use whatever is the currently set local AWS configuration.
 
 Boxes manages EC2 instances that have a tag with the name `boxes.boxid`.
 
+## Terminal Recording / asciinema
+
+The recording at the top of the README file is an SVG based on an [asciinema](https://asciinema.org/) recording that has been converted to SVG with [svg-term-cli](https://github.com/marionebl/svg-term-cli).
+
+To update the recording:
+
+1. Install asciinema `brew install asciinema`
+
+To record a Tmux session, you will need to start _detached_ from Tmux and then attach. You can do this by hand, simply using `tmux attach`, but this adds some noise to the beginning of the recording. A better way is to use the command below:
+
+```bash
+asciinema rec --command "tmux attach [-t session-name]"
+
 ## TODO
 
 Quick and dirty task-list.
@@ -59,3 +72,6 @@ Quick and dirty task-list.
 - [ ] build / lint / test / deploy pipeline
 - [ ] add support for OpenVPN server to save $10/month
 - [ ] torrent box is not mounting larger volume for storage
+- [ ] Cost management tags configuration to allow pricing info
+- [ ] docs: make AWS screenshot a bit smaller in readme
+- [ ] docs: create and share blogpost
