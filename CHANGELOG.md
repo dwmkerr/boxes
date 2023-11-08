@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.0](https://github.com/dwmkerr/boxes/compare/v0.1.0...v0.1.0) (2023-11-08)
+
+
+### Miscellaneous Chores
+
+* release 0.1.0 ([40b2caa](https://github.com/dwmkerr/boxes/commit/40b2caa1d71d87a84559ba95318344ebd65a1980))
+* release 2.0.0 ([95c0463](https://github.com/dwmkerr/boxes/commit/95c046390a22b56873057b9d1a2d94f65c305faf))
+
 ## 0.1.0 (2023-11-07)
 
 
