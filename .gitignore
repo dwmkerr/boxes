@@ -3,3 +3,4 @@ jspm_packages
 package-lock.json
 boxes.json
 artifacts/
+.DS_Store
