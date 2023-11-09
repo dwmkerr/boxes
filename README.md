@@ -28,12 +28,12 @@ You can now list your boxes with `list` and start or stop them with `start` and 
 
 The following commands are available for `boxes`:
 
-- `boxes list` - shows all boxes and their status
-- `boxes start` - starts a box
-- `boxes stop` - stops a box
-- `boxes info` - shows info on a box
-- `boxes connect` - opens a box
-- `boxes ssh` - helps initiate an SSH connection to a box
+- [`boxes list`](#boxes-list) - shows all boxes and their status
+- [`boxes start`](#boxes-list) - starts a box
+- [`boxes stop`](#boxes-list) - stops a box
+- [`boxes info`](#boxes-list) - shows info on a box
+- [`boxes connect`](#boxes-list) - opens a box
+- [`boxes ssh`](#boxes-list) - helps initiate an SSH connection to a box
 
 ### `boxes list`
 
