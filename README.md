@@ -4,15 +4,13 @@
 
 Quickly turn on, turn off, list and connect to your AWS instances. Great for saving costs by running servers in the cloud and starting them only when needed.
 
-TODO demo recording
+![Recording of a terminal session that shows the boxes CLI in action](./docs/democast.svg)
 
 ## Quickstart
 
 Tag any AWS instance you want to control with a tag named `boxes.boxid`:
 
-TODO smaller screenshot
-
-![Screenshot: The AWS EC2 Instances console showing two boxes and the boxid tag](./docs/aws-instance-tags.png)
+<img alt="Screenshot: The AWS EC2 Instances console showing two boxes and the boxid tag" src="https://github.com/dwmkerr/boxes/raw/main/docs/aws-instance-tags.png" width="48">
 
 In this screenshot I have two instances tagged, one with the value `steambox` (used for gaming) and one with `torrentbox` (for fast BitTorrent downloads).
 
@@ -22,9 +20,7 @@ Install the Boxes CLI with:
 npm install @dwmkerr/boxes
 ```
 
-You can now list your boxes with `list` and start or stop them with `start` and `stop`:
-
-![Screen recording: TODO]()
+You can now list your boxes with `list` and start or stop them with `start` and `stop`.
 
 The following commands are available for `boxes`:
 
@@ -121,7 +117,6 @@ The `boxes ssh` command can be used to quickly ssh into a box. Provide the ssh c
   "boxes": {
     "torrentbox": {
       "sshCommand": "ssh -i /Users/dwmkerr/repos/github/dwmkerr/dwmkerr/tf-aws-dwmkerr/dwmkerr_aws_key.pem ec2-user@${host}"
-"
     }
   }
 }
@@ -164,17 +159,14 @@ Boxes manages EC2 instances that have a tag with the name `boxes.boxid`.
 
 ## Terminal Recording / asciinema
 
-The recording at the top of the README file is an SVG based on an [asciinema](https://asciinema.org/) recording that has been converted to SVG with [svg-term-cli](https://github.com/marionebl/svg-term-cli).
+To create a terminal recording for the documentation:
 
-To update the recording:
-
-1. Install asciinema `brew install asciinema`
-
-To record a Tmux session, you will need to start _detached_ from Tmux and then attach. You can do this by hand, simply using `tmux attach`, but this adds some noise to the beginning of the recording. A better way is to use the command below:
-
-```bash
-asciinema rec --command "tmux attach [-t session-name]"
-```
+- Install [asciinema](https://asciinema.org/) `brew install asciinema`
+- Check that you have your profiles setup as documented in `./scripts/record-demo.sh`
+- Run the script to start a 'clean' terminal `./scripts/record-demo.sh`
+- Download your recording, e.g. to `./docs/620124.cast`
+- Install [svg-term-cli](https://github.com/marionebl/svg-term-cli) `npm install -g svg-term-cli`
+- Convert to SVG: `svg-term --in ./docs/620124.cast --out docs/democast.svg --window --no-cursor --from=1000`
 
 ## Dependencies
 
@@ -192,9 +184,9 @@ Quick and dirty task-list.
 - [x] npm badge download link
 - [x] bug: package.json path
 - [x] build / lint / test / deploy pipeline
-- [ ] screen recording of boxes list / stop / start / connect
-- [ ] document how 'connect' works
-- [ ] feat: ssh connect
+- [x] screen recording of boxes list / stop / start / connect
+- [x] document how 'connect' works
+- [x] feat: ssh connect
 - [ ] docs: make AWS screenshot a bit smaller in readme
 - [ ] Cost management tags configuration to allow pricing info
 - [ ] docs: create and share blogpost

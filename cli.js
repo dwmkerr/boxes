@@ -8,7 +8,8 @@ import theme from "./theme.js";
 //  node.
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
-const packageJson = require("./package.json");
+const pathName = require.resolve("./package.json");
+const packageJson = require(pathName);
 
 const program = new Command();
 program
