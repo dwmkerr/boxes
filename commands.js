@@ -1,18 +1,19 @@
-const { getBoxes, startOrStopBoxes } = require("./get-boxes");
-const { getBoxConfig } = require("./config");
+import { getBoxes, startOrStopBoxes } from "./get-boxes.js";
+import open from "open";
+import { getBoxConfig } from "./config.js";
 
-async function list() {
+export async function list() {
   const boxes = await getBoxes();
   return boxes;
 }
 
-async function info(boxId) {
+export async function info(boxId) {
   const boxes = await getBoxes();
   const box = boxes.find((b) => b.boxId === boxId);
   console.log(box);
 }
 
-async function connect(boxId) {
+export async function connect(boxId, openConnection) {
   //  First, we need to load box configuration. If it is missing, or we don't
   //  have configuration for the given box, we'll bail.
   const boxesConfig = await getBoxConfig();
@@ -34,10 +35,15 @@ async function connect(boxId) {
 
   //  Expand the url string, which'll look something like this:
   //  http://${host}:9091/transmission/web/
-  const expandedUrl = boxConfig.connectUrl.replace(
-    "${host}",
-    box.instance.PublicDnsName,
-  );
+  const expandedUrl = boxConfig.connectUrl
+    .replace("${host}", box.instance.PublicDnsName)
+    .replace("${username}", boxConfig.username);
+
+  //  If the user has requested to open the connection, open it now.
+  if (openConnection) {
+    await open(expandedUrl);
+  }
+
   return {
     url: expandedUrl,
     username: boxConfig.username,
@@ -45,18 +51,46 @@ async function connect(boxId) {
   };
 }
 
-async function start(boxId) {
+export async function start(boxId) {
   return await startOrStopBoxes([boxId], true);
 }
 
-async function stop(boxId) {
+export async function stop(boxId) {
   return await startOrStopBoxes([boxId], false);
 }
 
-module.exports = {
-  list,
-  info,
-  connect,
-  start,
-  stop,
-};
+export async function ssh(boxId, openConnection) {
+  //  First, we need to load box configuration. If it is missing, or we don't
+  //  have configuration for the given box, we'll bail.
+  const boxesConfig = await getBoxConfig();
+  const boxConfig = boxesConfig.boxes.find((b) => b.boxId === boxId);
+  if (!boxConfig) {
+    //  TODO throw error with suggestion.
+    throw new Error(
+      `unable to find box with id '${boxId}' in config file boxes.json`,
+    );
+  }
+
+  //  Now get the boxes.
+  const boxes = await getBoxes();
+  const box = boxes.find((b) => b.boxId === boxId);
+  if (!box) {
+    console.log(`cannot find '${boxId}'`);
+    return;
+  }
+
+  //  Expand the url string, which'll look something like this:
+  //  http://${host}:9091/transmission/web/
+  const command = boxConfig.sshCommand
+    .replace("${host}", box.instance.PublicDnsName)
+    .replace("${username}", boxConfig.username);
+
+  //  If the user has requested to open the connection, open it now.
+  if (openConnection) {
+    await open(command);
+  }
+
+  return {
+    command,
+  };
+}

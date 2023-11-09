@@ -1,6 +1,7 @@
 {
   "name": "@dwmkerr/boxes",
   "description": "Quick access to your cloud instances.",
+  "type": "module",
   "version": "0.1.0",
   "main": "index.js",
   "bin": {
@@ -26,7 +27,8 @@
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.437.0",
     "colors": "^1.4.0",
-    "commander": "^11.1.0"
+    "commander": "^11.1.0",
+    "open": "^9.1.0"
   },
   "devDependencies": {
     "eslint": "^8.53.0",
