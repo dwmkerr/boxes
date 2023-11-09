@@ -1,4 +1,4 @@
-const colors = require("colors/safe");
+import colors from "colors/safe.js";
 
 function boxId(boxId) {
   return colors.white.bold(boxId);
@@ -9,6 +9,7 @@ function state(stateName) {
     { rex: /stopped/, colorName: "red" },
     { rex: /(stopping|pending)/, colorName: "yellow" },
     { rex: /running/, colorName: "green" },
+    { rex: /terminated/, colorName: "grey" },
   ];
 
   //  Find the first mapping.
@@ -19,7 +20,7 @@ function state(stateName) {
   return colors[colorName](stateName);
 }
 
-module.exports = {
+export default {
   boxId,
   state,
 };

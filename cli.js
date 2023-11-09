@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 
-const { Command } = require("commander");
+import { Command } from "commander";
+import { list, info, connect, start, stop, ssh } from "./commands.js";
+import theme from "./theme.js";
+
+//  Import the package.json in a way compatible with most recent versions of
+//  node.
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
 const packageJson = require("./package.json");
-const { list, info, connect, start, stop } = require("./commands");
-const theme = require("./theme");
 
 const program = new Command();
-
 program
   .name("boxes")
   .description("CLI to control your cloud boxes")
@@ -39,8 +43,19 @@ program
   .command("connect")
   .description("Connect to a box")
   .argument("<boxId>", 'id of the box, e.g: "steambox"')
-  .action(async (boxId) => {
-    const result = await connect(boxId);
+  .option("-o, --open", "open connection", false)
+  .action(async (boxId, options) => {
+    const result = await connect(boxId, options.open);
+    console.log(result);
+  });
+
+program
+  .command("ssh")
+  .description("Establish an SSH connection to a box")
+  .argument("<boxId>", 'id of the box, e.g: "steambox"')
+  .option("-o, --open", "open connection", false)
+  .action(async (boxId, options) => {
+    const result = await ssh(boxId, options.open);
     console.log(result);
   });
 

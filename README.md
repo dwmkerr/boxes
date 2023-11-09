@@ -32,6 +32,9 @@ Clone the repo, install dependencies, link, then the `boxes` command will be ava
 
 ```bash
 git clone git@github.com:dwmkerr/boxes.git
+# optionally use the latest node with:
+# nvm use --lts
+npm install
 npm link
 
 # Now run boxes commands such as:
@@ -63,16 +66,27 @@ To record a Tmux session, you will need to start _detached_ from Tmux and then a
 asciinema rec --command "tmux attach [-t session-name]"
 ```
 
+## Dependencies
+
+Runtime dependencies are:
+
+- `@aws-sdk/client-ec2` - AWS APIs
+- `colors` - to add colour to console output
+- `commander` - for quickly scaffold CLI apps
+- `open` - to open browsers / applications cross-platform
+
 ## TODO
 
 Quick and dirty task-list.
 
 - [x] npm badge download link
+- [x] bug: package.json path
+- [x] build / lint / test / deploy pipeline
 - [ ] screen recording of boxes list / stop / start / connect
 - [ ] document how 'connect' works
-- [ ] build / lint / test / deploy pipeline
-- [ ] add support for OpenVPN server to save $10/month
-- [ ] torrent box is not mounting larger volume for storage
-- [ ] Cost management tags configuration to allow pricing info
+- [ ] feat: ssh connect
 - [ ] docs: make AWS screenshot a bit smaller in readme
+- [ ] Cost management tags configuration to allow pricing info
 - [ ] docs: create and share blogpost
+- [ ] refactor: extract and test the parameter expansion for 'connect'
+- [ ] add support for OpenVPN server to save $10/month

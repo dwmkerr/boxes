@@ -1,9 +1,9 @@
-const {
+import {
   EC2Client,
   DescribeInstancesCommand,
   StartInstancesCommand,
   StopInstancesCommand,
-} = require("@aws-sdk/client-ec2");
+} from "@aws-sdk/client-ec2";
 
 const getTagValOr = (tags, tagName, fallback) => {
   return tags.reduce((acc, val) => {
@@ -14,9 +14,9 @@ const nameFromTags = (tags) => {
   return getTagValOr(tags, "Name", "<unknown>");
 };
 
-module.exports.startOrStopBoxes = async (boxIds, start) => {
+export async function startOrStopBoxes(boxIds, start) {
   //  Get the boxes.
-  const boxes = await module.exports.getBoxes();
+  const boxes = await getBoxes();
 
   //  Start any box that has been requested.
   const boxInstanceIds = boxIds.map((boxId) => {
@@ -75,9 +75,9 @@ module.exports.startOrStopBoxes = async (boxIds, start) => {
     });
     return newInstancesStates;
   }
-};
+}
 
-module.exports.getBoxes = async () => {
+export async function getBoxes() {
   const client = new EC2Client({
     profile: "dwmkerr",
     region: "us-west-2",
@@ -97,7 +97,11 @@ module.exports.getBoxes = async () => {
 
   const instances = instancesResponse.Reservations.flatMap((r) => r.Instances);
 
-  const boxes = instances.map((i) => ({
+  //  We filter out terminated boxes (otherwise we can get multiple boxes with
+  //  the same ID, e.g. if a user quickly terminates and recreates a box).
+  const validInstances = instances.filter((i) => i.State.Name !== "terminated");
+
+  const boxes = validInstances.map((i) => ({
     boxId: getTagValOr(i.Tags, "boxes.boxid", null),
     instanceId: i.InstanceId,
     name: nameFromTags(i.Tags),
@@ -106,4 +110,4 @@ module.exports.getBoxes = async () => {
   }));
 
   return boxes;
-};
+}
