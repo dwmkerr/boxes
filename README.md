@@ -26,6 +26,116 @@ You can now list your boxes with `list` and start or stop them with `start` and 
 
 ![Screen recording: TODO]()
 
+The following commands are available for `boxes`:
+
+- [`boxes list`](#boxes-list) - shows all boxes and their status
+- [`boxes start`](#boxes-list) - starts a box
+- [`boxes stop`](#boxes-list) - stops a box
+- [`boxes info`](#boxes-list) - shows info on a box
+- [`boxes connect`](#boxes-list) - opens a box
+- [`boxes ssh`](#boxes-list) - helps initiate an SSH connection to a box
+
+### `boxes list`
+
+Run `boxes list` to show the details of boxes:
+
+```bash
+$ boxes list
+steambox: stopped
+  Name: Steam Box
+torrentbox: running
+  Name: Torrent Box
+  DNS: ec2-34-221-110-58.us-west-2.compute.amazonaws.com
+  IP: 34.221.110.58
+```
+
+### `boxes start`
+
+Run `boxes start <id>` to start a box:
+
+```bash
+$ boxes start steambox
+  steambox (i-098e8d30d5e399b03): stopped -> pending
+```
+
+### `boxes stop`
+
+Run `boxes start <id>` to stop a box:
+
+```bash
+$ boxes stop steambox
+  steambox (i-098e8d30d5e399b03): running -> stopping
+```
+
+### `boxes info`
+
+Run `boxes info <id>` to show detailed info on a box:
+
+```bash
+$ boxes info steambox
+{
+  boxId: 'steambox',
+  instanceId: 'i-098e8d30d5e399b03',
+  name: 'Steam Box',
+  status: 'stopping',
+  instance: {
+    AmiLaunchIndex: 0,
+    ImageId: 'ami-0fae5ac34f36d5963',
+    InstanceId: 'i-098e8d30d5e399b03',
+    InstanceType: 'g4ad.xlarge',
+...
+```
+
+### `boxes connect`
+
+The `boxes connect` command can be used to open an interface to a box. For this command to work, you need a `boxes.json` file that specifies _how_ to connect. As an example, the following configuration file shows how to connect to a Torrent Box:
+
+```json
+{
+  "boxes": {
+    "torrentbox": {
+      "connectUrl": "http://${username}@${host}:9091/transmission/web/",
+      "username": "dwmkerr"
+    }
+  }
+}
+```
+
+When you run `boxes connect torrentbox` the `connectUrl` will be expanded with the actual hostname of the running instance, as well as any other parameters in the configuration file (such as the username). Pass the `--open` flag to open the connect URL directly:
+
+```bash
+% boxes connect --open torrentbox
+{
+  url: 'http://dwmkerr@ec2-34-221-110-58.us-west-2.compute.amazonaws.com:9091/transmission/web/',
+  username: 'dwmkerr'
+}
+# the system configured browser will open with the url above...
+```
+
+### `boxes ssh`
+
+The `boxes ssh` command can be used to quickly ssh into a box. Provide the ssh command that should be used in the `boxes.json` file:
+
+```json
+{
+  "boxes": {
+    "torrentbox": {
+      "sshCommand": "ssh -i /Users/dwmkerr/repos/github/dwmkerr/dwmkerr/tf-aws-dwmkerr/dwmkerr_aws_key.pem ec2-user@${host}"
+"
+    }
+  }
+}
+```
+
+Running `boxes ssh torrentbox` will expand the command with the host. You can then copy the output and paste into the shell, or run a new shell with this output directly:
+
+
+```bash
+% bash -c "${boxes ssh torrentbox}"
+Last login: Thu Nov  9 06:13:09 2023 from 135-180-121-112.fiber.dynamic.sonic.net
+...
+```
+
 ## Developer Guide
 
 Clone the repo, install dependencies, link, then the `boxes` command will be available:

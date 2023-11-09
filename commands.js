@@ -17,7 +17,7 @@ export async function connect(boxId, openConnection) {
   //  First, we need to load box configuration. If it is missing, or we don't
   //  have configuration for the given box, we'll bail.
   const boxesConfig = await getBoxConfig();
-  const boxConfig = boxesConfig.boxes.find((b) => b.boxId === boxId);
+  const boxConfig = boxesConfig.boxes[boxId];
   if (!boxConfig) {
     //  TODO throw error with suggestion.
     throw new Error(
@@ -63,7 +63,7 @@ export async function ssh(boxId, openConnection) {
   //  First, we need to load box configuration. If it is missing, or we don't
   //  have configuration for the given box, we'll bail.
   const boxesConfig = await getBoxConfig();
-  const boxConfig = boxesConfig.boxes.find((b) => b.boxId === boxId);
+  const boxConfig = boxesConfig.boxes[boxId];
   if (!boxConfig) {
     //  TODO throw error with suggestion.
     throw new Error(
@@ -90,7 +90,5 @@ export async function ssh(boxId, openConnection) {
     await open(command);
   }
 
-  return {
-    command,
-  };
+  return command;
 }
