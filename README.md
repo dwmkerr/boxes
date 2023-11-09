@@ -10,7 +10,7 @@ Quickly turn on, turn off, list and connect to your AWS instances. Great for sav
 
 Tag any AWS instance you want to control with a tag named `boxes.boxid`:
 
-<img alt="Screenshot: The AWS EC2 Instances console showing two boxes and the boxid tag" src="https://github.com/dwmkerr/boxes/raw/main/docs/aws-instance-tags.png" width="48">
+<img alt="Screenshot: The AWS EC2 Instances console showing two boxes and the boxid tag" src="https://github.com/dwmkerr/boxes/raw/main/docs/aws-instance-tags.png" width="480">
 
 In this screenshot I have two instances tagged, one with the value `steambox` (used for gaming) and one with `torrentbox` (for fast BitTorrent downloads).
 
@@ -187,7 +187,7 @@ Quick and dirty task-list.
 - [x] screen recording of boxes list / stop / start / connect
 - [x] document how 'connect' works
 - [x] feat: ssh connect
-- [ ] docs: make AWS screenshot a bit smaller in readme
+- [] docs: make AWS screenshot a bit smaller in readme
 - [ ] Cost management tags configuration to allow pricing info
 - [ ] docs: create and share blogpost
 - [ ] refactor: extract and test the parameter expansion for 'connect'
