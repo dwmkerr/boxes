@@ -20,8 +20,6 @@ Install the Boxes CLI with:
 npm install @dwmkerr/boxes
 ```
 
-You can now list your boxes with `list` and start or stop them with `start` and `stop`.
-
 The following commands are available for `boxes`:
 
 - [`boxes list`](#boxes-list) - shows all boxes and their status
