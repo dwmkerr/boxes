@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.0](https://github.com/dwmkerr/boxes/compare/v0.1.0...v0.2.0) (2023-11-10)
+
+
+### Features
+
+* connect open parameter ([#7](https://github.com/dwmkerr/boxes/issues/7)) ([373cc2b](https://github.com/dwmkerr/boxes/commit/373cc2b4762289b927671108cfa69e83a98caf45))
+* support "open" parameter for connect ([#5](https://github.com/dwmkerr/boxes/issues/5)) ([1079aa0](https://github.com/dwmkerr/boxes/commit/1079aa02b6012c7415ce502225fb3a4841f04a98))
+
+
+### Bug Fixes
+
+* remove hard coded aws region/profile ([#9](https://github.com/dwmkerr/boxes/issues/9)) ([79f5bc3](https://github.com/dwmkerr/boxes/commit/79f5bc3e23c2ac3489f7684f7d690e27e93cfef5))
+
 ## 0.1.0 (2023-11-08)
 
 
