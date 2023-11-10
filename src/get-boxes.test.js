@@ -10,23 +10,30 @@ import { getBoxes } from "./get-boxes";
 
 test("can get boxes", async () => {
   const ec2Mock = mockClient(EC2Client)
-   .on(DescribeInstancesCommand)
+    .on(DescribeInstancesCommand)
     .resolves({
-      Reservations: [{
-        Instances: [{
-          InstanceId: "i-08fec1692931e31e7",
-          Tags: [{
-            Key: "Name",
-            Value: "Torrent Box",
-          }, {
-            Key: "boxes.boxid",
-            Value: "torrentbox",
-          }],
-          State: {
-            Name: "stopped",
-          }
-        }],
-      }],
+      Reservations: [
+        {
+          Instances: [
+            {
+              InstanceId: "i-08fec1692931e31e7",
+              Tags: [
+                {
+                  Key: "Name",
+                  Value: "Torrent Box",
+                },
+                {
+                  Key: "boxes.boxid",
+                  Value: "torrentbox",
+                },
+              ],
+              State: {
+                Name: "stopped",
+              },
+            },
+          ],
+        },
+      ],
     });
 
   const boxes = await getBoxes();

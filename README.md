@@ -201,7 +201,7 @@ Quick and dirty task-list.
 - [x] document how 'connect' works
 - [x] feat: ssh connect
 - [x] docs: make AWS screenshot a bit smaller in readme
-- [ ] feat: some basic tests
+- [x] feat: some basic tests
 - [ ] feat: Cost management tags configuration to allow pricing info TODO check cost allocation report
 - [ ] docs: cost allocation tags blog post
 - [ ] docs: create and share blogpost
