@@ -177,6 +177,19 @@ Runtime dependencies are:
 - `commander` - for quickly scaffold CLI apps
 - `open` - to open browsers / applications cross-platform
 
+Development dependencies:
+
+- [`aws-sdk-client-mock-jest`](https://github.com/m-radzikowski/aws-sdk-client-mock) mocks for the AWS V3 CLI as well as matchers for Jest
+
+
+## Notes on cost allocation
+
+- Set boxid tag with terraform
+- Recreate resources
+- Wait 24hrs
+- Give your user permissions for the reports
+- costs 0.01$ per call
+
 ## TODO
 
 Quick and dirty task-list.
@@ -187,8 +200,15 @@ Quick and dirty task-list.
 - [x] screen recording of boxes list / stop / start / connect
 - [x] document how 'connect' works
 - [x] feat: ssh connect
-- [] docs: make AWS screenshot a bit smaller in readme
-- [ ] Cost management tags configuration to allow pricing info
+- [x] docs: make AWS screenshot a bit smaller in readme
+- [x] feat: some basic tests
+- [ ] feat: Cost management tags configuration to allow pricing info TODO check cost allocation report
+- [ ] docs: cost allocation tags blog post
 - [ ] docs: create and share blogpost
+- [ ] testing: recreate steam box with cost allocation tag enabled
+
+## Later
+
 - [ ] refactor: extract and test the parameter expansion for 'connect'
-- [ ] add support for OpenVPN server to save $10/month
+- [ ] feat: autocomplete
+- [ ] feat: aws profile in config file

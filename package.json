@@ -5,14 +5,14 @@
   "version": "0.1.0",
   "main": "index.js",
   "bin": {
-    "boxes": "./cli.js"
+    "boxes": "./src/cli.js"
   },
   "scripts": {
-    "test": "jest",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "test:debug": "node --inspect-brk node_modules/.bin/jest --runInBand",
-    "test:cov": "jest --coverage --coverageDirectory=artifacts/coverage"
+    "test:cov": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage --coverageDirectory=artifacts/coverage --collectCoverageFrom='src/**/*.js'"
   },
   "repository": {
     "type": "git",
@@ -31,6 +31,7 @@
     "open": "^9.1.0"
   },
   "devDependencies": {
+    "aws-sdk-client-mock-jest": "^3.0.0",
     "eslint": "^8.53.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.1",
