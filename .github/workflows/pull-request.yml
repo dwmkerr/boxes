@@ -40,4 +40,4 @@ jobs:
     # Upload coverage to codecov.
     - uses: codecov/codecov-action@v3
       with:
-        directory: ./coverage
+        directory: ./artifacts/coverage
