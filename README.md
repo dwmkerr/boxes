@@ -204,6 +204,8 @@ Quick and dirty task-list.
 - [ ] docs: cost allocation tags blog post
 - [ ] docs: create and share blogpost
 - [ ] testing: recreate steam box with cost allocation tag enabled
+- [ ] build: check coverage working on main
+- [ ] feat: flag or option to control spend, by enforcing a confirmation for usage of the 'cost' api
 
 ## Later
 
