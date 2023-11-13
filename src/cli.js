@@ -3,6 +3,7 @@
 import { Command } from "commander";
 import { list, info, connect, start, stop, ssh, getCosts } from "./commands.js";
 import theme from "./theme.js";
+import { TerminatingWarning } from "./errors.js";
 
 //  Import the package.json in a way compatible with most recent versions of
 //  node.
@@ -10,6 +11,8 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const pathName = require.resolve("../package.json");
 const packageJson = require(pathName);
+
+const ERROR_CODE_WARNING = 1;
 
 const program = new Command();
 program
@@ -24,12 +27,12 @@ program
   .action(async () => {
     const boxes = await list();
     boxes.forEach((box) => {
-      console.log(`${theme.boxId(box.boxId)}: ${theme.state(box.status)}`);
-      console.log(`  Name: ${box.name}`);
+      theme.printBoxHeading(box.boxId, box.status);
+      theme.printBoxDetail("Name", box.name);
       //  Only show DNS details if they exist (i.e. if the box is running).
       if (box.instance.PublicDnsName) {
-        console.log(`  DNS: ${box.instance.PublicDnsName}`);
-        console.log(`  IP: ${box.instance.PublicIpAddress}`);
+        theme.printBoxDetail("DNS", box.instance.PublicDnsName);
+        theme.printBoxDetail("IP", box.instance.PublicIpAddress);
       }
     });
   });
@@ -97,8 +100,39 @@ program
   .description("Check box costs")
   .option("-y, --yes", "accept AWS charges", false)
   .action(async (options) => {
-    const result = await getCosts(options.yes);
-    console.log(result);
+    const boxes = await list();
+    const costs = await getCosts(options.yes);
+
+    //  Show each box, joined to costs.
+    boxes.forEach((box) => {
+      theme.printBoxHeading(box.boxId, box.status);
+      const boxCosts = costs[box.boxId];
+      theme.printBoxDetail("Costs (this month)", boxCosts || "<unknown>");
+      delete costs[box.boxId];
+    });
+
+    //  Any costs we didn't map should be found.
+    Object.getOwnPropertyNames(costs).forEach((key) => {
+      const cost = costs[key];
+      if (key === "*") {
+        theme.printBoxHeading("Non-box costs");
+      } else {
+        theme.printBoxHeading(box.boxId, "<unknown>");
+      }
+      theme.printBoxDetail("Costs (this month)", cost);
+    });
   });
 
-program.parse();
+async function run() {
+  try {
+    await program.parseAsync();
+  } catch (err) {
+    if (err instanceof TerminatingWarning) {
+      theme.printWarning(err.message);
+      process.exit(ERROR_CODE_WARNING);
+    } else {
+      throw err;
+    }
+  }
+}
+run().catch(console.error);

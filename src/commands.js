@@ -2,6 +2,7 @@ import { getBoxes, startOrStopBoxes } from "./get-boxes.js";
 import { getBoxesCosts } from "./get-boxes-costs.js";
 import open from "open";
 import { getBoxConfig } from "./config.js";
+import { TerminatingWarning } from "./errors.js";
 
 export async function list() {
   const boxes = await getBoxes();
@@ -20,9 +21,8 @@ export async function connect(boxId, openConnection) {
   const boxesConfig = await getBoxConfig();
   const boxConfig = boxesConfig.boxes[boxId];
   if (!boxConfig) {
-    //  TODO throw error with suggestion.
-    throw new Error(
-      `unable to find box with id '${boxId}' in config file boxes.json`,
+    throw new TerminatingWarning(
+      `Unable to find box with id '${boxId}' in config file boxes.json`,
     );
   }
 
@@ -66,9 +66,8 @@ export async function ssh(boxId, openConnection) {
   const boxesConfig = await getBoxConfig();
   const boxConfig = boxesConfig.boxes[boxId];
   if (!boxConfig) {
-    //  TODO throw error with suggestion.
-    throw new Error(
-      `unable to find box with id '${boxId}' in config file boxes.json`,
+    throw new TerminatingWarning(
+      `Unable to find box with id '${boxId}' in config file boxes.json`,
     );
   }
 
@@ -97,9 +96,9 @@ export async function ssh(boxId, openConnection) {
 export async function getCosts(yes) {
   //  If the user hasn't passed the 'yes' parameter to confirm, ask now.
   if (yes !== true) {
-    console.log("The AWS cost explorer charges $0.01 per call.");
-    console.log("To continue and accept charges, re-run the command with the '--yes' parameter.");
-    return;
+    const message = `The AWS cost explorer charges $0.01 per call.
+To accept charges, re-run with the '--yes' parameter.`;
+    throw new TerminatingWarning(message);
   }
 
   return await getBoxesCosts();
