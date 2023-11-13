@@ -240,13 +240,18 @@ Quick and dirty task-list.
 - [x] feat: Cost management tags configuration to allow pricing info TODO check cost allocation report
 - [x] build: check coverage working on main
 - [x] feat: flag or option to control spend, by enforcing a confirmation for usage of the 'cost' api
-- [ ] testing: recreate steam box with cost allocation tag enabled
+- [ ] testing: recreate steambox box with cost allocation tag enabled
+- [ ] feat: better error handling (try running commands w/out AWS profile set)
+- [ ] docs: final clean demo recording
+- [ ] docs: document error codes
 
 ## Later
 
 - [ ] docs: cost allocation tags blog post
+- [ ] feat: profile option in commandline and config file (link to config project?)
 - [ ] docs: create and share blogpost
 - [ ] docs: blog post showing step-by-step how to enable cost reporting, add the link to the docs here
 - [ ] refactor: extract and test the parameter expansion for 'connect'
 - [ ] feat: autocomplete
 - [ ] feat: aws profile in config file
+- [ ] feat: man page
