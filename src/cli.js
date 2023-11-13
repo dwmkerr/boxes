@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { list, info, connect, start, stop, ssh } from "./commands.js";
+import { list, info, connect, start, stop, ssh, getCosts } from "./commands.js";
 import theme from "./theme.js";
 
 //  Import the package.json in a way compatible with most recent versions of
 //  node.
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
-const pathName = require.resolve("./package.json");
+const pathName = require.resolve("../package.json");
 const packageJson = require(pathName);
 
 const program = new Command();
@@ -90,6 +90,15 @@ program
         )} -> ${theme.state(currentState)}`,
       );
     });
+  });
+
+program
+  .command("costs")
+  .description("Check box costs")
+  .option("-y, --yes", "accept AWS charges", false)
+  .action(async (options) => {
+    const result = await getCosts(options.yes);
+    console.log(result);
   });
 
 program.parse();
