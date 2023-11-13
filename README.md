@@ -2,7 +2,7 @@
 
 [![main](https://github.com/dwmkerr/boxes/actions/workflows/main.yml/badge.svg)](https://github.com/dwmkerr/boxes/actions/workflows/main.yml) ![npm (scoped)](https://img.shields.io/npm/v/%40dwmkerr/boxes) [![codecov](https://codecov.io/gh/dwmkerr/boxes/graph/badge.svg?token=uGVpjGFbDf)](https://codecov.io/gh/dwmkerr/boxes)
 
-Quickly turn on, turn off, list and connect to your AWS instances. Great for saving costs by running servers in the cloud and starting them only when needed.
+Quickly turn on, turn off, list, show costs and connect to your AWS instances. Great for saving costs by running servers in the cloud and starting them only when needed.
 
 ![Recording of a terminal session that shows the boxes CLI in action](./docs/democast.svg)
 
@@ -13,6 +13,8 @@ Tag any AWS instance you want to control with a tag named `boxes.boxid`:
 <img alt="Screenshot: The AWS EC2 Instances console showing two boxes and the boxid tag" src="https://github.com/dwmkerr/boxes/raw/main/docs/aws-instance-tags.png" width="480">
 
 In this screenshot I have two instances tagged, one with the value `steambox` (used for gaming) and one with `torrentbox` (for fast BitTorrent downloads).
+
+If you want to be able to report on costs, follow the instructions at [Enabling Cost Reporting](#enabling-cost-reporting).
 
 Install the Boxes CLI with:
 
@@ -28,6 +30,7 @@ The following commands are available for `boxes`:
 - [`boxes info`](#boxes-list) - shows info on a box
 - [`boxes connect`](#boxes-list) - opens a box
 - [`boxes ssh`](#boxes-list) - helps initiate an SSH connection to a box
+- [`boxes costs`](#boxes-costs) - shows the costs accrued by each both this month
 
 ### `boxes list`
 
@@ -129,6 +132,37 @@ Last login: Thu Nov  9 06:13:09 2023 from 135-180-121-112.fiber.dynamic.sonic.ne
 ...
 ```
 
+### `boxes costs`
+
+The `boxes costs` command shows the current costs accrued for each both this month. Note that calling the AWS API that gets these costs comes with a charge of $0.01 per call (at time of writing). To continue with the charge, pass the `--yes` parameter to this command.
+
+You must ensure that the `boxes.boxId` tag is set up as a [Cost Allocation Tag](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html) for costs to be reported, more information is at [Enabling Cost Reporting](#enabling-cost-reporting).
+
+```bash
+% boxes costs --yes
+steambox: stopped
+  Costs (this month): ~ 0.53 USD
+torrentbox: stopped
+  Costs (this month): ~ 0.05 USD
+Non-box costs
+  Costs (this month): ~ 36.92 USD
+```
+
+## Enabling Cost Reporting
+
+If you want to be able to show the costs that are associated with each box, you will need to:
+
+1. Tag each box and the resources associated with the box with the `boxes.boxid` tag
+2. Activate the `boxes.boxid` tag as a cost allocation tag
+3. Re-create all of the resources associated with the tag, so that AWS starts collecting cost information
+4. Wait 24 hours for AWS to start processing data
+
+## AWS Configuration
+
+Boxes will use whatever is the currently set local AWS configuration.
+
+Boxes manages EC2 instances that have a tag with the name `boxes.boxid`.
+
 ## Developer Guide
 
 Clone the repo, install dependencies, link, then the `boxes` command will be available:
@@ -149,13 +183,16 @@ npm unlink
 
 The CLI uses the current local AWS configuration and will manage any EC2 instances with a tag named `boxes.boxid`. The value of the tag is the identifier used to manage the specific box.
 
-## AWS Configuration
+### Error Handling
 
-Boxes will use whatever is the currently set local AWS configuration.
+To show a warning and terminate the application, throw a `TerminatingWarning` error:
 
-Boxes manages EC2 instances that have a tag with the name `boxes.boxid`.
+```js
+import { TerminatingWarning } from "./errors.js";
+throw new TerminatingWarning("Your AWS profile is not set");
+```
 
-## Terminal Recording / asciinema
+### Terminal Recording / asciinema
 
 To create a terminal recording for the documentation:
 
@@ -166,7 +203,16 @@ To create a terminal recording for the documentation:
 - Install [svg-term-cli](https://github.com/marionebl/svg-term-cli) `npm install -g svg-term-cli`
 - Convert to SVG: `svg-term --in ./docs/620124.cast --out docs/democast.svg --window --no-cursor --from=1000`
 
-## Dependencies
+The demo script is currently:
+
+- `boxes ls`
+- `boxes start steambox`
+- `boxes costs --yes`
+- `boxes ssh torrentbox`
+- `boxes stop steambox`
+- `boxes ls`
+
+### Dependencies
 
 Runtime dependencies are:
 
@@ -178,15 +224,6 @@ Runtime dependencies are:
 Development dependencies:
 
 - [`aws-sdk-client-mock-jest`](https://github.com/m-radzikowski/aws-sdk-client-mock) mocks for the AWS V3 CLI as well as matchers for Jest
-
-
-## Notes on cost allocation
-
-- Set boxid tag with terraform
-- Recreate resources
-- Wait 24hrs
-- Give your user permissions for the reports
-- costs 0.01$ per call
 
 ## TODO
 
@@ -200,15 +237,16 @@ Quick and dirty task-list.
 - [x] feat: ssh connect
 - [x] docs: make AWS screenshot a bit smaller in readme
 - [x] feat: some basic tests
-- [ ] feat: Cost management tags configuration to allow pricing info TODO check cost allocation report
-- [ ] docs: cost allocation tags blog post
-- [ ] docs: create and share blogpost
+- [x] feat: Cost management tags configuration to allow pricing info TODO check cost allocation report
+- [x] build: check coverage working on main
+- [x] feat: flag or option to control spend, by enforcing a confirmation for usage of the 'cost' api
 - [ ] testing: recreate steam box with cost allocation tag enabled
-- [ ] build: check coverage working on main
-- [ ] feat: flag or option to control spend, by enforcing a confirmation for usage of the 'cost' api
 
 ## Later
 
+- [ ] docs: cost allocation tags blog post
+- [ ] docs: create and share blogpost
+- [ ] docs: blog post showing step-by-step how to enable cost reporting, add the link to the docs here
 - [ ] refactor: extract and test the parameter expansion for 'connect'
 - [ ] feat: autocomplete
 - [ ] feat: aws profile in config file

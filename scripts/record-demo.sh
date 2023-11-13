@@ -7,7 +7,7 @@ tell application "iTerm"
     set newWindow to (create window with profile "dwmkerr-recording")
     tell current session of newWindow
         write text "clear"
-        write text "asciinema rec"
+        write text "AWS_PROFILE=dwmkerr; /usr/local/bin/asciinema rec --overwrite --title "Boxes Demo" ~/repos/github/dwmkerr/boxes/docs/620124.cast"
     end tell
 end tell
 EOF
