@@ -1,4 +1,5 @@
 import { getBoxes, startOrStopBoxes } from "./get-boxes.js";
+import { getBoxesCosts } from "./get-boxes-costs.js";
 import open from "open";
 import { getBoxConfig } from "./config.js";
 
@@ -91,4 +92,15 @@ export async function ssh(boxId, openConnection) {
   }
 
   return command;
+}
+
+export async function getCosts(yes) {
+  //  If the user hasn't passed the 'yes' parameter to confirm, ask now.
+  if (yes !== true) {
+    console.log("The AWS cost explorer charges $0.01 per call.");
+    console.log("To continue and accept charges, re-run the command with the '--yes' parameter.");
+    return;
+  }
+
+  return await getBoxesCosts();
 }
