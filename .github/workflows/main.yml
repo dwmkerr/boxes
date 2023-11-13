@@ -73,6 +73,12 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
+      # The source files must be present for codecov to be upload the file list
+      # properly, otherwise no coverage is reported and the "unusable report"
+      # error is shown. Took ages to work this out.
+      - name: Checkout
+        uses: actions/checkout@v3
+
       # Download the build artifacts.
       - name: Download Artifacts
         uses: actions/download-artifact@v3
