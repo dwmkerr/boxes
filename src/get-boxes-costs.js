@@ -63,7 +63,11 @@ export async function getBoxesCosts() {
   };
   const costs = groups.map((g) => {
     const boxId = g.Keys[0].split("$")[1];
-    const amount = printCost(estimated, g.Metrics.UnblendedCost.Amount, g.Metrics.UnblendedCost.Unit);
+    const amount = printCost(
+      estimated,
+      g.Metrics.UnblendedCost.Amount,
+      g.Metrics.UnblendedCost.Unit,
+    );
     return {
       boxId,
       amount,

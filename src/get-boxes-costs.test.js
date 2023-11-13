@@ -14,23 +14,30 @@ import getMonthlyCostsResponse from "../monthly-costs.json";
 
 describe("get-boxes-costs", () => {
   beforeAll(() => {
-    //  Set the time to the end of the month UTC - this means that if we are
-    //  running in any local which is > 0 from UTC the localisation must be
-    //  working properly (otherwise this'll show as december, not november).
     jest.useFakeTimers();
-    jest.setSystemTime(new Date("2023-11-30T23:59:59.000Z").getTime());
   });
   afterAll(() => {
     jest.useRealTimers();
   });
+
+  test("time zone is set properly for tests", () => {
+    expect(process.env.TZ).toEqual("America/Los_Angeles");
+    expect(new Date().toString()).toMatch(/Pacific Standard Time/);
+  });
+
   test("can get boxes costs", async () => {
     const ecMock = mockClient(CostExplorerClient)
       .on(GetCostAndUsageCommand)
       .resolves(getMonthlyCostsResponse);
     const boxCosts = await getBoxesCosts();
 
-    //  TODO this only works if the local time zone is set properly, e.g:
-    //  pacific time. Need a better way.
+    //  Set the time to the end of the month UTC - this means that if we are
+    //  running in any locale which is > 0 from UTC the localisation must be
+    //  working properly (otherwise this'll show as december, not november).
+    //  We explicitly run our tests in Los Angeles (UTC+8 or UTC+7) to allow
+    //  us to test edge cases like this.
+    jest.setSystemTime(new Date("2023-11-30T23:59:59.000Z").getTime());
+
     expect(ecMock).toHaveReceivedCommandWith(GetCostAndUsageCommand, {
       TimePeriod: { Start: "2023-11-01", End: "2023-11-30" },
       Metrics: ["UNBLENDED_COST"],
