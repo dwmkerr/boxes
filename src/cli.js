@@ -117,7 +117,7 @@ program
       if (key === "*") {
         theme.printBoxHeading("Non-box costs");
       } else {
-        theme.printBoxHeading(box.boxId, "<unknown>");
+        theme.printBoxHeading(key, "<unknown>");
       }
       theme.printBoxDetail("Costs (this month)", cost);
     });

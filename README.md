@@ -240,7 +240,7 @@ Quick and dirty task-list.
 - [x] feat: Cost management tags configuration to allow pricing info TODO check cost allocation report
 - [x] build: check coverage working on main
 - [x] feat: flag or option to control spend, by enforcing a confirmation for usage of the 'cost' api
-- [ ] testing: recreate steam box with cost allocation tag enabled
+- [ ] testing: recreate steam box with cost allocation tag enabled (current cost  0.53 USD)
 
 ## Later
 
