@@ -1,7 +1,4 @@
-import {
-  EC2Client,
-  DescribeInstancesCommand,
-} from "@aws-sdk/client-ec2";
+import { EC2Client, DescribeInstancesCommand } from "@aws-sdk/client-ec2";
 import { mockClient } from "aws-sdk-client-mock";
 import "aws-sdk-client-mock-jest";
 import { getBoxes } from "./get-boxes";
