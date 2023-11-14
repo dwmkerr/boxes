@@ -1,6 +1,3 @@
-/**
- * @jest-environment-options {"timezone": "j"}
- */
 import { jest } from "@jest/globals";
 import {
   CostExplorerClient,
@@ -10,7 +7,7 @@ import { mockClient } from "aws-sdk-client-mock";
 import "aws-sdk-client-mock-jest";
 import { getBoxesCosts } from "./get-boxes-costs";
 
-import getMonthlyCostsResponse from "../monthly-costs.json";
+import getMonthlyCostsResponse from "./fixtures/aws-ce-get-costs.json";
 
 describe("get-boxes-costs", () => {
   beforeAll(() => {
