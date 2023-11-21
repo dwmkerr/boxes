@@ -13,6 +13,7 @@ const pathName = require.resolve("../package.json");
 const packageJson = require(pathName);
 
 const ERROR_CODE_WARNING = 1;
+const ERROR_CODE_CONNECTION = 2;
 
 const program = new Command();
 program
@@ -127,9 +128,16 @@ async function run() {
   try {
     await program.parseAsync();
   } catch (err) {
+    //  TODO: if the 'verbose' flag has been set, log the error object.
     if (err instanceof TerminatingWarning) {
       theme.printWarning(err.message);
       process.exit(ERROR_CODE_WARNING);
+    } else if (err.code === "ENOTFOUND") {
+      theme.printError("Address not found - check internet connection");
+      process.exit(ERROR_CODE_CONNECTION);
+    } else if (err.code === "ERR_TLS_CERT_ALTNAME_INVALID") {
+      theme.printError("Invalid certificate - check internet connection");
+      process.exit(ERROR_CODE_CONNECTION);
     } else {
       throw err;
     }

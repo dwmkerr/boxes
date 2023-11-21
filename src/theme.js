@@ -33,10 +33,15 @@ function printWarning(message) {
   console.log(colors.yellow(message));
 }
 
+export function printError(message) {
+  console.log(colors.red(message));
+}
+
 export default {
   boxId,
   state,
   printBoxHeading,
   printBoxDetail,
   printWarning,
+  printError,
 };
