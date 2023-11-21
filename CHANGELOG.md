@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.0](https://github.com/dwmkerr/boxes/compare/v0.2.0...v0.3.0) (2023-11-21)
+
+
+### Features
+
+* 'costs' command shows boxes costs ([#12](https://github.com/dwmkerr/boxes/issues/12)) ([ae40a1d](https://github.com/dwmkerr/boxes/commit/ae40a1d494fd660073ca1a0265317efaf4db6b4d))
+* better error handling for connectivity issues ([b7eb373](https://github.com/dwmkerr/boxes/commit/b7eb373e4e7655d715678b8de841e208ca946a42))
+* enable 'costs' command ([#14](https://github.com/dwmkerr/boxes/issues/14)) ([cbd5d6f](https://github.com/dwmkerr/boxes/commit/cbd5d6f3b457cd09af2e7cf4f6533ef8d2e58a87))
+* get boxes costs ([#10](https://github.com/dwmkerr/boxes/issues/10)) ([8c7821f](https://github.com/dwmkerr/boxes/commit/8c7821f7690f62e773fed81f74c411f1d6a252b2))
+
+
+### Bug Fixes
+
+* codecov report for main ([74f3269](https://github.com/dwmkerr/boxes/commit/74f32693f1740f55ff75c83d9b6f7f959f2a91c8))
+
 ## [0.2.0](https://github.com/dwmkerr/boxes/compare/v0.1.0...v0.2.0) (2023-11-10)
 
 

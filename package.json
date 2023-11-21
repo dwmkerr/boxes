@@ -2,7 +2,7 @@
   "name": "@dwmkerr/boxes",
   "description": "Quick access to your cloud instances.",
   "type": "module",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "main": "index.js",
   "bin": {
     "boxes": "./src/cli.js"
@@ -41,7 +41,9 @@
   "jest": {
     "globalSetup": "./src/jest-global-setup.js",
     "coverageDirectory": "artifacts/coverage",
-    "collectCoverageFrom": ["src/**/*.js"],
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ],
     "coverageReporters": [
       "text",
       "cobertura"
