@@ -100,9 +100,13 @@ program
   .command("costs")
   .description("Check box costs")
   .option("-y, --yes", "accept AWS charges", false)
+  .option("-m, --month <month>", "month of year", null)
   .action(async (options) => {
     const boxes = await list();
-    const costs = await getCosts(options.yes);
+    const costs = await getCosts({
+      yes: options.yes,
+      month: options.month,
+    });
 
     //  Show each box, joined to costs.
     boxes.forEach((box) => {

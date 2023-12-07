@@ -10,12 +10,14 @@ function dateToLocalDateString(date) {
   return `${year}-${month}-${day}`;
 }
 
-export async function getBoxesCosts() {
+export async function getBoxesCosts(options) {
   const client = new CostExplorerClient();
 
-  //  Get the firt day of the current month.
+  //  Get the firt day of the current month OR the specified month.
   const now = new Date(Date.now());
-  const startOfMonth = new Date(now);
+  const startOfMonth = options.monthNumber
+    ? new Date(now.getFullYear(), options.monthNumber - 1, 10)
+    : new Date(now);
   startOfMonth.setDate(1);
 
   //  Get the next month, then 'zero-th' date, which is the last day of the
