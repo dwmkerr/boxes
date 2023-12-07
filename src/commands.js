@@ -94,7 +94,7 @@ export async function ssh(boxId, openConnection) {
   return command;
 }
 
-export async function getCosts(yes) {
+export async function getCosts({ yes, month }) {
   //  If the user hasn't passed the 'yes' parameter to confirm, ask now.
   if (yes !== true) {
     const message = `The AWS cost explorer charges $0.01 per call.
@@ -102,5 +102,8 @@ To accept charges, re-run with the '--yes' parameter.`;
     throw new TerminatingWarning(message);
   }
 
-  return await getBoxesCosts();
+  //  Parse the month number if provided.
+  const monthNumber = month ? parseInt(month, 10) : null;
+
+  return await getBoxesCosts({ monthNumber });
 }

@@ -148,6 +148,12 @@ Non-box costs
   Costs (this month): ~ 36.92 USD
 ```
 
+Additional parameters for `costs` are available:
+
+| Parameter               | Description                                       |
+|-------------------------|---------------------------------------------------|
+| `-m`, `--month <month>` | Get costs for a specific month. 1=Jan, 2=Feb etc. |
+
 ## Enabling Cost Reporting
 
 If you want to be able to show the costs that are associated with each box, you will need to:

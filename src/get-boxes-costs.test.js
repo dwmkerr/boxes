@@ -33,10 +33,16 @@ describe("get-boxes-costs", () => {
     //  working properly (otherwise this'll show as december, not november).
     //  We explicitly run our tests in Los Angeles (UTC+8 or UTC+7) to allow
     //  us to test edge cases like this.
-    jest.setSystemTime(new Date("2023-11-30T23:59:59.000Z").getTime());
+    const mockedCurrentDate = new Date("2023-11-30T23:59:59.000Z");
+    jest.setSystemTime(mockedCurrentDate.getTime());
 
+    //  Assert that we've hit the mocked current month from the first date
+    //  to the last.
     expect(ecMock).toHaveReceivedCommandWith(GetCostAndUsageCommand, {
-      TimePeriod: { Start: "2023-11-01", End: "2023-11-30" },
+      TimePeriod: {
+        Start: `${mockedCurrentDate.getFullYear()}-${mockedCurrentDate.getMonth()}-01`,
+        End: `${mockedCurrentDate.getFullYear()}-${mockedCurrentDate.getMonth()}-30`,
+      },
       Metrics: ["UNBLENDED_COST"],
       Granularity: "MONTHLY",
       GroupBy: [{ Type: "TAG", Key: "boxes.boxid" }],
@@ -46,6 +52,32 @@ describe("get-boxes-costs", () => {
       "*": "~ 33.78 USD",
       steambox: "~ 0.53 USD",
       torrentbox: "~ 0.05 USD",
+    });
+  });
+
+  test("correctly sets the month number if provided", async () => {
+    const ecMock = mockClient(CostExplorerClient)
+      .on(GetCostAndUsageCommand)
+      .resolves(getMonthlyCostsResponse);
+    const mockedCurrentDate = new Date("2023-11-13T23:59:59.000Z");
+    jest.setSystemTime(mockedCurrentDate.getTime());
+
+    //  Explicitly look for the previous month from the mocked current date.
+    const monthNumber = 10;
+    debugger;
+    await getBoxesCosts({
+      monthNumber,
+    });
+
+    //  Assert that we've hit the mocked current year with the specified month.
+    expect(ecMock).toHaveReceivedCommandWith(GetCostAndUsageCommand, {
+      TimePeriod: {
+        Start: `${mockedCurrentDate.getFullYear()}-${monthNumber}-01`,
+        End: `${mockedCurrentDate.getFullYear()}-${monthNumber}-31`,
+      },
+      Metrics: ["UNBLENDED_COST"],
+      Granularity: "MONTHLY",
+      GroupBy: [{ Type: "TAG", Key: "boxes.boxid" }],
     });
   });
 });
