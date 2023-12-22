@@ -1,3 +1,4 @@
+import clipboard from "clipboardy";
 import { getBoxes } from "./get-boxes.js";
 import { startOrStopBoxes } from "./manage-boxes.js";
 import { getBoxesCosts } from "./get-boxes-costs.js";
@@ -16,7 +17,7 @@ export async function info(boxId) {
   console.log(box);
 }
 
-export async function connect(boxId, openConnection) {
+export async function connect(boxId, openConnection, copyPassword) {
   //  First, we need to load box configuration. If it is missing, or we don't
   //  have configuration for the given box, we'll bail.
   const boxesConfig = await getBoxConfig();
@@ -40,6 +41,12 @@ export async function connect(boxId, openConnection) {
   const expandedUrl = boxConfig.connectUrl
     .replace("${host}", box.instance.PublicDnsName)
     .replace("${username}", boxConfig.username);
+
+  //  If the user has asked for the password to be copied, put it on the
+  //  clipboard.
+  if (copyPassword) {
+    clipboard.writeSync(boxConfig.password);
+  }
 
   //  If the user has requested to open the connection, open it now.
   if (openConnection) {

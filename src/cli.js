@@ -50,8 +50,13 @@ program
   .argument("<boxId>", 'id of the box, e.g: "steambox"')
   .option("-o, --open", "open connection", false)
   .action(async (boxId, options) => {
-    const result = await connect(boxId, options.open);
+    const copyPassword = true;
+    const result = await connect(boxId, options.open, copyPassword);
     console.log(result);
+    if (copyPassword) {
+      console.log();
+      console.log("...password copied to clipboard");
+    }
   });
 
 program

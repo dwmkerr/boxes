@@ -235,6 +235,7 @@ Development dependencies:
 
 Quick and dirty task-list.
 
+- [ ] feat: document copy password in connect, maybe better default off
 - [x] npm badge download link
 - [x] bug: package.json path
 - [x] build / lint / test / deploy pipeline

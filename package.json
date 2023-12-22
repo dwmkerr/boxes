@@ -27,6 +27,7 @@
   "dependencies": {
     "@aws-sdk/client-cost-explorer": "^3.449.0",
     "@aws-sdk/client-ec2": "^3.437.0",
+    "clipboardy": "^4.0.0",
     "colors": "^1.4.0",
     "commander": "^11.1.0",
     "open": "^9.1.0"
@@ -41,7 +42,9 @@
   "jest": {
     "globalSetup": "./src/jest-global-setup.js",
     "coverageDirectory": "artifacts/coverage",
-    "collectCoverageFrom": ["src/**/*.js"],
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ],
     "coverageReporters": [
       "text",
       "cobertura"
