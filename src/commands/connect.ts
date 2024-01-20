@@ -1,10 +1,9 @@
-// TODO ts
-// import clipboard from "clipboardy";
+//  Note that 'clipboardy' and 'open' require dynamic imports so that this
+//  can be packaged as a commonjs module. The dyanmic imports are directly
+//  used in the 'connect' function below.
 import { getBoxes } from "../lib/get-boxes";
-// TODO ts
-// import open from "open";
 import { getBoxConfig } from "../config";
-import { TerminatingWarning } from "../errors";
+import { TerminatingWarning } from "../lib/errors";
 
 export async function connect(
   boxId: string,
@@ -38,18 +37,14 @@ export async function connect(
   //  If the user has asked for the password to be copied, put it on the
   //  clipboard.
   if (copyPassword) {
-    // TODO ts
-    // clipboard.writeSync(boxConfig.password);
-    console.log('Clipboard currently broken, password is:');
-    console.log(boxConfig.password);
+    const clipboard = (await import("clipboardy")).default;
+    clipboard.writeSync(boxConfig.password);
   }
 
   //  If the user has requested to open the connection, open it now.
   if (openConnection) {
-    // TODO ts
-    // await open(expandedUrl);
-    console.log('Clipboard currently broken, password is:');
-    console.log(boxConfig.password);
+    const open = (await import("open")).default;
+    await open(expandedUrl);
   }
 
   return {

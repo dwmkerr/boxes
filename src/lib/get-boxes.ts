@@ -1,8 +1,4 @@
-import {
-  EC2Client,
-  DescribeInstancesCommand,
-  Tag,
-} from "@aws-sdk/client-ec2";
+import { EC2Client, DescribeInstancesCommand, Tag } from "@aws-sdk/client-ec2";
 import { Box } from "../box";
 import { TerminatingWarning } from "./errors";
 
@@ -33,13 +29,15 @@ export async function getBoxes(): Promise<Box[]> {
 
   //  We filter out terminated boxes (otherwise we can get multiple boxes with
   //  the same ID, e.g. if a user quickly terminates and recreates a box).
-  const validInstances = instances.filter((i) => i?.State?.Name !== "terminated");
+  const validInstances = instances.filter(
+    (i) => i?.State?.Name !== "terminated",
+  );
 
   const boxes = validInstances.map((i) => ({
     boxId: getTagValOr(i?.Tags || [], "boxes.boxid", ""),
     instanceId: i?.InstanceId,
-    name: nameFromTags(i?.Tags || []),
-    status: i?.State?.Name,
+    name: nameFromTags(i?.Tags || []) || "",
+    status: i?.State?.Name || "unknown",
     instance: i,
   }));
 

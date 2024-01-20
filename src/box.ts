@@ -1,7 +1,7 @@
 export interface Box {
-  boxId: string | undefined;
-  instanceId: string | undefined
-  name: string | undefined;
-  status: string | undefined;
+  boxId: string;
+  name: string;
+  status: string;
+  instanceId: string | undefined;
   instance: any;
 }

@@ -1,3 +1,9 @@
+# todo
+
+status enum
+tests
+test each command
+
 # boxes
 
 [![main](https://github.com/dwmkerr/boxes/actions/workflows/main.yml/badge.svg)](https://github.com/dwmkerr/boxes/actions/workflows/main.yml) ![npm (scoped)](https://img.shields.io/npm/v/%40dwmkerr/boxes) [![codecov](https://codecov.io/gh/dwmkerr/boxes/graph/badge.svg?token=uGVpjGFbDf)](https://codecov.io/gh/dwmkerr/boxes)
@@ -217,14 +223,15 @@ Boxes puts tags on the instance to track the details of the devices which must b
 
 ## Developer Guide
 
-Clone the repo, install dependencies, link, then the `boxes` command will be available:
+Clone the repo, install dependencies, build, link, then the `boxes` command will be available:
 
 ```bash
 git clone git@github.com:dwmkerr/boxes.git
 # optionally use the latest node with:
 # nvm use --lts
 npm install
-npm link
+npm run build
+npm link boxes # link the 'boxes' command.
 
 # Now run boxes commands such as:
 boxes list
@@ -234,6 +241,8 @@ npm unlink
 ```
 
 The CLI uses the current local AWS configuration and will manage any EC2 instances with a tag named `boxes.boxid`. The value of the tag is the identifier used to manage the specific box.
+
+Note that you will need to rebuild the code if you change it, so run `npm run build` before using the `boxes` alias.
 
 ### Error Handling
 

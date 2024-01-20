@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { list, info, start, ssh } from "./commands";
+import { list, info, ssh } from "./commands";
+import { start } from "./commands/start";
 import { stop } from "./commands/stop";
 import { getCosts } from "./commands/getCosts";
 import { connect } from "./commands/connect";
 import theme from "./theme.js";
-import { TerminatingWarning } from "./errors";
+import { TerminatingWarning } from "./lib/errors";
 
 //  Import the package.json in a way compatible with most recent versions of
 //  node.
@@ -78,15 +79,12 @@ program
   .description("Start a box")
   .argument("<boxId>", 'id of the box, e.g: "steambox"')
   .action(async (boxId) => {
-    const result = await start(boxId);
-    result.forEach((transition) => {
-      const { boxId, instanceId, currentState, previousState } = transition;
-      console.log(
-        `  ${theme.boxId(boxId)} (${instanceId}): ${theme.state(
-          previousState,
-        )} -> ${theme.state(currentState)}`,
-      );
-    });
+    const { instanceId, currentState, previousState } = await start(boxId);
+    console.log(
+      `  ${theme.boxId(boxId)} (${instanceId}): ${theme.state(
+        previousState,
+      )} -> ${theme.state(currentState)}`,
+    );
   });
 
 program
@@ -101,8 +99,8 @@ program
     );
     console.log(
       `  ${theme.boxId(boxId)} (${instanceId}): ${theme.state(
-        previousState,
-      )} -> ${theme.state(currentState)}`,
+        previousState || "unknown",
+      )} -> ${theme.state(currentState || "unknown")}`,
     );
   });
 

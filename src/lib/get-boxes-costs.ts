@@ -28,23 +28,26 @@ export interface BoxCostDescription {
 }
 
 export async function getBoxesCosts(
-  options?: GetBoxesCostsOptions
+  options?: GetBoxesCostsOptions,
 ): Promise<BoxCostDescription[]> {
   const client = new CostExplorerClient({});
 
   //  If the caller has specified a year, we must also have a month.
   //  It is fine to just have a month on it's own - it'll default to
   //  the current year.
-  if (options?.yearNumber && (options.monthNumber === undefined)) {
-    throw new TerminatingWarning("'year' can only be combined with the 'month' option");
+  if (options?.yearNumber && options.monthNumber === undefined) {
+    throw new TerminatingWarning(
+      "'year' can only be combined with the 'month' option",
+    );
   }
 
   //  Get the firt day of the current month OR the specified month.
   const now = new Date(Date.now());
   const year = options?.yearNumber || now.getFullYear();
-  const startOfMonth = (options && options.monthNumber)
-    ? new Date(year, options.monthNumber - 1, 10)
-    : new Date(now);
+  const startOfMonth =
+    options && options.monthNumber
+      ? new Date(year, options.monthNumber - 1, 10)
+      : new Date(now);
   startOfMonth.setDate(1);
 
   //  Get the next month, then 'zero-th' date, which is the last day of the
@@ -97,10 +100,15 @@ export async function getBoxesCosts(
 
   //  printCost just formats the costs and uses question marks if AWS returns
   //  us undefined values. Not perfect but good enough.
-  const printCost = (estimated: boolean, stringAmount: string | undefined, unit: string | undefined) => {
+  const printCost = (
+    estimated: boolean,
+    stringAmount: string | undefined,
+    unit: string | undefined,
+  ) => {
     const lead = estimated ? "~ " : "";
-    const amount = 
-      stringAmount ? Number.parseFloat(stringAmount).toFixed(2) : "?";
+    const amount = stringAmount
+      ? Number.parseFloat(stringAmount).toFixed(2)
+      : "?";
     const unitVal = unit || "?";
     return `${lead}${amount} ${unitVal}`;
   };

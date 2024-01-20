@@ -1,10 +1,10 @@
+import type {Config} from 'jest';
 /*
  * For a detailed explanation regarding each configuration property, visit:
  * https://jestjs.io/docs/configuration
  */
 
-/** @type {import('ts-jest').JestConfigWithTsJest} */
-export default {
+const config: Config = {
   //  We're using ts-jest for typescript support. Treat *.ts files as ESM
   //  modules so that we can use 'import'.
   //  See:
@@ -24,6 +24,9 @@ export default {
       },
     ],
   },
+
+  //  Only look for tests in the src folder, i.e. excluded build.
+  roots: ["./src/"],
 
   //  Initial config/setup function for jest
   globalSetup: "./src/jest-global-setup.ts",
@@ -50,4 +53,6 @@ export default {
   // The test environment that will be used for testing
   testEnvironment: "node",
 };
+
+export default config;
 
