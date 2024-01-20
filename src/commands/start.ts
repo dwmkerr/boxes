@@ -1,12 +1,13 @@
 import { EC2Client, StartInstancesCommand } from "@aws-sdk/client-ec2";
 import { TerminatingWarning } from "../lib/errors";
 import { getBoxes } from "../lib/get-boxes";
+import { BoxState, awsStateToBoxState } from "../box";
 
 export interface BoxTransition {
   boxId: string;
   instanceId: string | undefined;
-  currentState: string;
-  previousState: string;
+  currentState: BoxState;
+  previousState: BoxState;
 }
 
 export async function start(boxId: string): Promise<BoxTransition> {
@@ -41,7 +42,7 @@ export async function start(boxId: string): Promise<BoxTransition> {
   return {
     boxId,
     instanceId: box.instanceId,
-    currentState: stoppingInstance?.CurrentState?.Name || "unknown",
-    previousState: stoppingInstance?.PreviousState?.Name || "unknown",
+    currentState: awsStateToBoxState(stoppingInstance?.CurrentState?.Name),
+    previousState: awsStateToBoxState(stoppingInstance?.PreviousState?.Name),
   };
 }

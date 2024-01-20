@@ -6,16 +6,10 @@ import { start } from "./commands/start";
 import { stop } from "./commands/stop";
 import { getCosts } from "./commands/getCosts";
 import { connect } from "./commands/connect";
-import theme from "./theme.js";
+import theme from "./theme";
 import { TerminatingWarning } from "./lib/errors";
-
-//  Import the package.json in a way compatible with most recent versions of
-//  node.
-// import { createRequire } from "node:module";
-// const require = createRequire(import.meta.url);
-// const pathName = require.resolve("../package.json");
-// const packageJson = require(pathName);
 import packageJson from "../package.json";
+import { BoxState } from "./box";
 
 const ERROR_CODE_WARNING = 1;
 const ERROR_CODE_CONNECTION = 2;
@@ -33,7 +27,7 @@ program
   .action(async () => {
     const boxes = await list();
     boxes.forEach((box) => {
-      theme.printBoxHeading(box.boxId, box.status);
+      theme.printBoxHeading(box.boxId, box.state);
       theme.printBoxDetail("Name", box.name);
       //  Only show DNS details if they exist (i.e. if the box is running).
       if (box.instance.PublicDnsName) {
@@ -99,8 +93,8 @@ program
     );
     console.log(
       `  ${theme.boxId(boxId)} (${instanceId}): ${theme.state(
-        previousState || "unknown",
-      )} -> ${theme.state(currentState || "unknown")}`,
+        previousState,
+      )} -> ${theme.state(currentState)}`,
     );
   });
 
@@ -122,7 +116,7 @@ program
     boxes.forEach((box) => {
       //  TODO refactor typescript
       if (box.boxId !== undefined) {
-        theme.printBoxHeading(box.boxId, box.status);
+        theme.printBoxHeading(box.boxId, box.state);
         const boxCosts = costs[box.boxId];
         theme.printBoxDetail("Costs (this month)", boxCosts || "<unknown>");
         delete costs[box.boxId];
@@ -135,7 +129,7 @@ program
       if (key === "*") {
         theme.printBoxHeading("Non-box costs");
       } else {
-        theme.printBoxHeading(key, "<unknown>");
+        theme.printBoxHeading(key, BoxState.Unknown);
       }
       theme.printBoxDetail("Costs (this month)", cost);
     });

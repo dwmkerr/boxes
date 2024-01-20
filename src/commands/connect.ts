@@ -1,6 +1,7 @@
 //  Note that 'clipboardy' and 'open' require dynamic imports so that this
 //  can be packaged as a commonjs module. The dyanmic imports are directly
 //  used in the 'connect' function below.
+// import clipboard from "clipboardy";
 import { getBoxes } from "../lib/get-boxes";
 import { getBoxConfig } from "../config";
 import { TerminatingWarning } from "../lib/errors";

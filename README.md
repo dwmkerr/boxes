@@ -1,7 +1,5 @@
 # todo
 
-status enum
-tests
 test each command
 
 # boxes
@@ -242,7 +240,11 @@ npm unlink
 
 The CLI uses the current local AWS configuration and will manage any EC2 instances with a tag named `boxes.boxid`. The value of the tag is the identifier used to manage the specific box.
 
-Note that you will need to rebuild the code if you change it, so run `npm run build` before using the `boxes` alias.
+Note that you will need to rebuild the code if you change it, so run `npm run build` before using the `boxes` alias. A quick way to do this is to run:
+
+```bash
+npm run relink
+```
 
 ### Error Handling
 

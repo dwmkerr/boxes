@@ -4,6 +4,7 @@ import "aws-sdk-client-mock-jest";
 import { getBoxes } from "./get-boxes";
 
 import describeInstancesResponse from "../fixtures/aws-ec2-describe-instances.json";
+import { BoxState } from "../box";
 
 describe("get-boxes", () => {
   test("can get boxes", async () => {
@@ -20,7 +21,7 @@ describe("get-boxes", () => {
       boxId: "torrentbox",
       instanceId: "i-08fec1692931e31e7",
       name: "Torrent Box",
-      status: "stopped",
+      state: BoxState.Stopped,
       // we don't care too much about the 'instance' object..
     });
   });
@@ -39,7 +40,7 @@ describe("get-boxes", () => {
       boxId: "torrentbox",
       instanceId: "i-08fec1692931e31e7",
       name: "Torrent Box",
-      status: "stopped",
+      state: BoxState.Stopped,
       // we don't care too much about the 'instance' object..
     });
   });

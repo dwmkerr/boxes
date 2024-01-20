@@ -1,5 +1,5 @@
 import { EC2Client, DescribeInstancesCommand, Tag } from "@aws-sdk/client-ec2";
-import { Box } from "../box";
+import { Box, awsStateToBoxState } from "../box";
 import { TerminatingWarning } from "./errors";
 
 export async function getBoxes(): Promise<Box[]> {
@@ -37,7 +37,7 @@ export async function getBoxes(): Promise<Box[]> {
     boxId: getTagValOr(i?.Tags || [], "boxes.boxid", ""),
     instanceId: i?.InstanceId,
     name: nameFromTags(i?.Tags || []) || "",
-    status: i?.State?.Name || "unknown",
+    state: awsStateToBoxState(i?.State?.Name),
     instance: i,
   }));
 

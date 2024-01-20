@@ -1,6 +1,7 @@
 import { EC2Client, StopInstancesCommand } from "@aws-sdk/client-ec2";
 import { TerminatingWarning } from "../lib/errors";
 import { getBoxes } from "../lib/get-boxes";
+import { awsStateToBoxState } from "../box";
 
 export async function stop(boxId: string, detach: boolean) {
   //  Get the box, fail with a warning if it is not found.
@@ -39,7 +40,7 @@ export async function stop(boxId: string, detach: boolean) {
   return {
     boxId,
     instanceId: box.instanceId,
-    currentState: stoppingInstance?.CurrentState?.Name,
-    previousState: stoppingInstance?.PreviousState?.Name,
+    currentState: awsStateToBoxState(stoppingInstance?.CurrentState?.Name),
+    previousState: awsStateToBoxState(stoppingInstance?.PreviousState?.Name),
   };
 }

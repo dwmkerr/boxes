@@ -1,29 +1,33 @@
 import colors from "colors/safe";
+import { BoxState } from "./box";
 
 function boxId(boxId: string) {
   //  TODO colors.white.bold should work, but typescript complains...
   return colors.white(colors.bold(boxId));
 }
 
-function state(stateName: string) {
-  const mappings = [
-    { rex: /\<unknown\>/, colorFunc: colors.red },
-    { rex: /stopped/, colorFunc: colors.red },
-    { rex: /(stopping|pending)/, colorFunc: colors.yellow },
-    { rex: /running/, colorFunc: colors.green },
-    { rex: /terminated/, colorFunc: colors.grey },
-  ];
-
-  //  Find the first mapping.
-  const mapping = mappings.find((m) => m.rex.test(stateName));
-  const colorFunc = mapping ? mapping.colorFunc : colors.grey;
-
-  //  Call the color function, e.g. 'color.green('starting')'.
-  return colorFunc(stateName);
+function state(state: BoxState) {
+  switch (state) {
+    case BoxState.Pending:
+      return colors.yellow("pending");
+    case BoxState.Running:
+      return colors.green("running");
+    case BoxState.ShuttingDown:
+      return colors.red("shutting down");
+    case BoxState.Terminated:
+      return colors.gray("terminated");
+    case BoxState.Stopping:
+      return colors.yellow("stopping");
+    case BoxState.Stopped:
+      return colors.red("stopped");
+    case BoxState.Unknown:
+    default:
+      return colors.red("unknown");
+  }
 }
 
-function printBoxHeading(box: string, status?: string) {
-  console.log(`${boxId(box)}${status ? `: ${state(status)}` : ""}`);
+function printBoxHeading(box: string, boxState?: BoxState) {
+  console.log(`${boxId(box)}${boxState ? `: ${state(boxState)}` : ""}`);
 }
 
 function printBoxDetail(name: string, value: string) {
