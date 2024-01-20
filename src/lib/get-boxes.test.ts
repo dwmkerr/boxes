@@ -3,9 +3,29 @@ import { mockClient } from "aws-sdk-client-mock";
 import "aws-sdk-client-mock-jest";
 import { getBoxes } from "./get-boxes";
 
-import describeInstancesResponse from "./fixtures/aws-ec2-describe-instances.json";
+import describeInstancesResponse from "../fixtures/aws-ec2-describe-instances.json";
+import { BoxState } from "../box";
 
-describe("manage-boxes", () => {
+describe("get-boxes", () => {
+  test("can get boxes", async () => {
+    //  Record fixture with:
+    //  AWS_PROFILE=dwmkerr aws ec2 describe-instances --filters "Name=tag:boxes.boxid,Values=*" > ./src/fixtures/aws-ec2-describe-instances.json
+    const ec2Mock = mockClient(EC2Client)
+      .on(DescribeInstancesCommand)
+      .resolves(describeInstancesResponse);
+
+    const boxes = await getBoxes();
+
+    expect(ec2Mock).toHaveReceivedCommand(DescribeInstancesCommand);
+    expect(boxes[0]).toMatchObject({
+      boxId: "torrentbox",
+      instanceId: "i-08fec1692931e31e7",
+      name: "Torrent Box",
+      state: BoxState.Stopped,
+      // we don't care too much about the 'instance' object..
+    });
+  });
+
   test("throws an unknown box id warning if a box is not found", async () => {
     //  Record fixture with:
     //  AWS_PROFILE=dwmkerr aws ec2 describe-instances --filters "Name=tag:boxes.boxid,Values=*" > ./src/fixtures/aws-ec2-describe-instances.json
@@ -20,7 +40,7 @@ describe("manage-boxes", () => {
       boxId: "torrentbox",
       instanceId: "i-08fec1692931e31e7",
       name: "Torrent Box",
-      status: "stopped",
+      state: BoxState.Stopped,
       // we don't care too much about the 'instance' object..
     });
   });

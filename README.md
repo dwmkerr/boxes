@@ -1,3 +1,11 @@
+# todo
+
+test ssh, new torrent script with logging, keep existing script for testing
+detach this eve
+region in config
+
+test a burner box for michelle's book
+
 # boxes
 
 [![main](https://github.com/dwmkerr/boxes/actions/workflows/main.yml/badge.svg)](https://github.com/dwmkerr/boxes/actions/workflows/main.yml) ![npm (scoped)](https://img.shields.io/npm/v/%40dwmkerr/boxes) [![codecov](https://codecov.io/gh/dwmkerr/boxes/graph/badge.svg?token=uGVpjGFbDf)](https://codecov.io/gh/dwmkerr/boxes)
@@ -109,6 +117,36 @@ When you run `boxes connect torrentbox` the `connectUrl` will be expanded with t
 # the system configured browser will open with the url above...
 ```
 
+If you want to be able to quickly access a password or credential, put a 'password' field in your config:
+
+```
+{
+  "boxes": {
+    "torrentbox": {
+      "connectUrl": "http://${username}@${host}:9091/transmission/web/",
+      "username": "dwmkerr",
+      "password": "<secret>"
+    }
+  }
+}
+```
+
+Now you can add the `--copy-password` or `-p` flag and the password will be copied to the clipboard:
+
+```
+% boxes connect --open -p torrentbox
+{
+  url: 'http://dwmkerr@ec2-34-221-110-58.us-west-2.compute.amazonaws.com:9091/transmission/web/',
+  username: 'dwmkerr',
+  password: '<secret>'
+}
+
+...password copied to clipbord
+```
+
+Be careful with this option as it will print the password to the screen and leave it on your clipboard.
+
+
 ### `boxes ssh`
 
 The `boxes ssh` command can be used to quickly ssh into a box. Provide the ssh command that should be used in the `boxes.json` file:
@@ -148,6 +186,12 @@ Non-box costs
   Costs (this month): ~ 36.92 USD
 ```
 
+Additional parameters for `costs` are available:
+
+| Parameter               | Description                                       |
+|-------------------------|---------------------------------------------------|
+| `-m`, `--month <month>` | Get costs for a specific month. 1=Jan, 2=Feb etc. |
+
 ## Enabling Cost Reporting
 
 If you want to be able to show the costs that are associated with each box, you will need to:
@@ -163,16 +207,33 @@ Boxes will use whatever is the currently set local AWS configuration.
 
 Boxes manages EC2 instances that have a tag with the name `boxes.boxid`.
 
+## Managing and Reducing Costs
+
+As long as you have followed the [Enable Cost Reporting](#enabling-cost-reporting) guide, then most of the costs associated with a box should be tracked. However, some costs which seem to not be tracked but potentially can be material are:
+
+- EBS instances
+
+### Snapshot Storage
+
+When you turn off EC2 instances, EBS devices will still be attached. Although the instance will no longer accrue charges, you EBS devices will.
+
+To save costs, you can detach EBS devices from stopped instances, snapshot it, delete the device, then re-create the device and re-attach as needed before you restart the instance. However, this is fiddle and time consuming.
+
+Boxes can take care of this for you - when you stop a box, just pass the `-d` or `--detach-and-archive` flag to detach and block storage devices. They will be snapshotted and boxes will restore and re-attach the devices automatically when you restart them.
+
+Boxes puts tags on the instance to track the details of the devices which must be restored - not that if you restart the instance yourself you will have to recreate the devices yourself too, so detaching/archiving is easier if you only use Boxes to manage the device.
+
 ## Developer Guide
 
-Clone the repo, install dependencies, link, then the `boxes` command will be available:
+Clone the repo, install dependencies, build, link, then the `boxes` command will be available:
 
 ```bash
 git clone git@github.com:dwmkerr/boxes.git
 # optionally use the latest node with:
 # nvm use --lts
 npm install
-npm link
+npm run build
+npm link boxes # link the 'boxes' command.
 
 # Now run boxes commands such as:
 boxes list
@@ -182,6 +243,12 @@ npm unlink
 ```
 
 The CLI uses the current local AWS configuration and will manage any EC2 instances with a tag named `boxes.boxid`. The value of the tag is the identifier used to manage the specific box.
+
+Note that you will need to rebuild the code if you change it, so run `npm run build` before using the `boxes` alias. A quick way to do this is to run:
+
+```bash
+npm run relink
+```
 
 ### Error Handling
 
@@ -225,10 +292,22 @@ Development dependencies:
 
 - [`aws-sdk-client-mock-jest`](https://github.com/m-radzikowski/aws-sdk-client-mock) mocks for the AWS V3 CLI as well as matchers for Jest
 
+### Troubleshooting
+
+`Argument of type... Types of property '...' are incompatible`
+
+Typically occurs if AWS SDK packages are not at the exact same number as the `@ask-sdk/types` version number. Update the package.json to use exactly the same version between all `@aws-sdk` libraries. Occassionally these libraries are still incompatible, in this case downgrade to a confirmed version that works such as `3.10.0`.
+
 ## TODO
 
 Quick and dirty task-list.
 
+## Alpha
+
+- [x] feat: document copy password in connect, maybe better default off
+- [ ] refactor: suck it up and use TS
+- [ ] feat: read AWS region from config file, using node-configuration
+- [ ] feat: save EBS costs by snapshot/detach/delete/replace (optional) - would save me $40 per month :) (see https://repost.aws/knowledge-center/ebs-charge-stopped-instance https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-restoring-volume.html https://cloudfix.com/blog/reduce-aws-costs-deleting-unnecessary-ebs-volumes/)
 - [x] npm badge download link
 - [x] bug: package.json path
 - [x] build / lint / test / deploy pipeline
@@ -241,12 +320,18 @@ Quick and dirty task-list.
 - [x] build: check coverage working on main
 - [x] feat: flag or option to control spend, by enforcing a confirmation for usage of the 'cost' api
 - [ ] testing: recreate steam box with cost allocation tag enabled (current cost  0.53 USD)
+- [ ] feat: boxes aws-console opens link eg (https://us-west-2.console.aws.amazon.com/ec2/home?region=us-west-2#InstanceDetails:instanceId=i-043a3c1ce6c9ea6ad)
+- [ ] bug: EBS devices not tagged -I've tagged two (manually) in jan - check w/ feb bill
+
+## Beta
 
 ## Later
 
+- [ ] feat: 'import' command to take an instance ID and create local box config for it and tag the instance
 - [ ] docs: cost allocation tags blog post
 - [ ] docs: create and share blogpost
 - [ ] docs: blog post showing step-by-step how to enable cost reporting, add the link to the docs here
 - [ ] refactor: extract and test the parameter expansion for 'connect'
 - [ ] feat: autocomplete
 - [ ] feat: aws profile in config file
+- [ ] epic: 'boxes create' to create from a template

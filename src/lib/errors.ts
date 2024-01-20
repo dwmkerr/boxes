@@ -1,5 +1,5 @@
 export class TerminatingWarning extends Error {
-  constructor(message) {
+  constructor(message: string) {
     super(message);
     this.name = this.constructor.name;
     Object.setPrototypeOf(this, TerminatingWarning.prototype);
