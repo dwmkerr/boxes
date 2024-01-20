@@ -1,6 +1,6 @@
 # todo
 
-test each command
+test ssh, new torrent script with logging, keep existing script for testing
 
 # boxes
 
