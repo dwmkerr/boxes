@@ -4,6 +4,8 @@ test ssh, new torrent script with logging, keep existing script for testing
 detach this eve
 region in config
 
+test a burner box for michelle's book
+
 # boxes
 
 [![main](https://github.com/dwmkerr/boxes/actions/workflows/main.yml/badge.svg)](https://github.com/dwmkerr/boxes/actions/workflows/main.yml) ![npm (scoped)](https://img.shields.io/npm/v/%40dwmkerr/boxes) [![codecov](https://codecov.io/gh/dwmkerr/boxes/graph/badge.svg?token=uGVpjGFbDf)](https://codecov.io/gh/dwmkerr/boxes)
