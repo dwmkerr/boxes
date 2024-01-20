@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { list, info, ssh } from "./commands";
+import { list, info } from "./commands";
 import { start } from "./commands/start";
 import { stop } from "./commands/stop";
+import { ssh } from "./commands/ssh";
 import { getCosts } from "./commands/getCosts";
 import { connect } from "./commands/connect";
 import theme from "./theme";
@@ -30,7 +31,7 @@ program
       theme.printBoxHeading(box.boxId, box.state);
       theme.printBoxDetail("Name", box.name);
       //  Only show DNS details if they exist (i.e. if the box is running).
-      if (box.instance.PublicDnsName) {
+      if (box.instance?.PublicDnsName && box.instance?.PublicIpAddress) {
         theme.printBoxDetail("DNS", box.instance.PublicDnsName);
         theme.printBoxDetail("IP", box.instance.PublicIpAddress);
       }
@@ -48,7 +49,7 @@ program
   .description("Connect to a box")
   .argument("<boxId>", 'id of the box, e.g: "steambox"')
   .option("-o, --open", "open connection", false)
-  .option("-p, --copy-password", "copy password to clipboard", false)
+  .option("-c, --copy-password", "copy password to clipboard", false)
   .action(async (boxId, options) => {
     const result = await connect(boxId, options.open, options.copyPassword);
     console.log(result);
@@ -63,8 +64,9 @@ program
   .description("Establish an SSH connection to a box")
   .argument("<boxId>", 'id of the box, e.g: "steambox"')
   .option("-o, --open", "open connection", false)
+  .option("-c, --copy-command", "copy ssh command to clipboard", false)
   .action(async (boxId, options) => {
-    const result = await ssh(boxId, options.open);
+    const result = await ssh(boxId, options.copyCommand, options.open);
     console.log(result);
   });
 

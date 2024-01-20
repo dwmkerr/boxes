@@ -6,10 +6,10 @@ import { getBoxes } from "../lib/get-boxes";
 import { getBoxConfig } from "../config";
 import { TerminatingWarning } from "../lib/errors";
 
-export async function connect(
+export async function ssh(
   boxId: string,
+  copyCommand: boolean,
   openConnection: boolean,
-  copyPassword: boolean,
 ) {
   //  First, we need to load box configuration. If it is missing, or we don't
   //  have configuration for the given box, we'll bail.
@@ -38,26 +38,22 @@ export async function connect(
 
   //  Expand the url string, which'll look something like this:
   //  http://${host}:9091/transmission/web/
-  const expandedUrl = boxConfig.connectUrl
+  const command = boxConfig.sshCommand
     .replace("${host}", box.instance.PublicDnsName)
     .replace("${username}", boxConfig.username);
 
-  //  If the user has asked for the password to be copied, put it on the
-  //  clipboard.
-  if (copyPassword) {
+  //  If the user has requested to copy the ssh command, copy it now.
+  if (copyCommand) {
     const clipboard = (await import("clipboardy")).default;
-    clipboard.writeSync(boxConfig.password);
+    clipboard.writeSync(command);
+    console.log("ssh command has been copied to the clipboard");
   }
 
   //  If the user has requested to open the connection, open it now.
   if (openConnection) {
     const open = (await import("open")).default;
-    await open(expandedUrl);
+    await open(command);
   }
 
-  return {
-    url: expandedUrl,
-    username: boxConfig.username,
-    password: boxConfig.password,
-  };
+  return command;
 }
