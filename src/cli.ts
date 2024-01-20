@@ -1,16 +1,20 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { list, info, connect, start, stop, ssh, getCosts } from "./commands.js";
+import { list, info, start, ssh } from "./commands";
+import { stop } from "./commands/stop";
+import { getCosts } from "./commands/getCosts";
+import { connect } from "./commands/connect";
 import theme from "./theme.js";
-import { TerminatingWarning } from "./errors.js";
+import { TerminatingWarning } from "./errors";
 
 //  Import the package.json in a way compatible with most recent versions of
 //  node.
-import { createRequire } from "node:module";
-const require = createRequire(import.meta.url);
-const pathName = require.resolve("../package.json");
-const packageJson = require(pathName);
+// import { createRequire } from "node:module";
+// const require = createRequire(import.meta.url);
+// const pathName = require.resolve("../package.json");
+// const packageJson = require(pathName);
+import packageJson from "../package.json";
 
 const ERROR_CODE_WARNING = 1;
 const ERROR_CODE_CONNECTION = 2;
@@ -49,11 +53,11 @@ program
   .description("Connect to a box")
   .argument("<boxId>", 'id of the box, e.g: "steambox"')
   .option("-o, --open", "open connection", false)
+  .option("-p, --copy-password", "copy password to clipboard", false)
   .action(async (boxId, options) => {
-    const copyPassword = true;
-    const result = await connect(boxId, options.open, copyPassword);
+    const result = await connect(boxId, options.open, options.copyPassword);
     console.log(result);
-    if (copyPassword) {
+    if (options.copyPassword) {
       console.log();
       console.log("...password copied to clipboard");
     }
@@ -89,36 +93,42 @@ program
   .command("stop")
   .description("Stop a box")
   .argument("<boxId>", 'id of the box, e.g: "steambox"')
-  .action(async (boxId) => {
-    const result = await stop(boxId);
-    result.forEach((transition) => {
-      const { boxId, instanceId, currentState, previousState } = transition;
-      console.log(
-        `  ${theme.boxId(boxId)} (${instanceId}): ${theme.state(
-          previousState,
-        )} -> ${theme.state(currentState)}`,
-      );
-    });
+  .option("--detach-volumes", "detach EBS volumes (experimental)", false)
+  .action(async (boxId, options) => {
+    const { instanceId, currentState, previousState } = await stop(
+      boxId,
+      options.detachVolumes,
+    );
+    console.log(
+      `  ${theme.boxId(boxId)} (${instanceId}): ${theme.state(
+        previousState,
+      )} -> ${theme.state(currentState)}`,
+    );
   });
 
 program
   .command("costs")
   .description("Check box costs")
   .option("-y, --yes", "accept AWS charges", false)
-  .option("-m, --month <month>", "month of year", null)
+  .option("-y, --year <year>", "month of year", undefined)
+  .option("-m, --month <month>", "month of year", undefined)
   .action(async (options) => {
     const boxes = await list();
     const costs = await getCosts({
       yes: options.yes,
+      year: options.year,
       month: options.month,
     });
 
     //  Show each box, joined to costs.
     boxes.forEach((box) => {
-      theme.printBoxHeading(box.boxId, box.status);
-      const boxCosts = costs[box.boxId];
-      theme.printBoxDetail("Costs (this month)", boxCosts || "<unknown>");
-      delete costs[box.boxId];
+      //  TODO refactor typescript
+      if (box.boxId !== undefined) {
+        theme.printBoxHeading(box.boxId, box.status);
+        const boxCosts = costs[box.boxId];
+        theme.printBoxDetail("Costs (this month)", boxCosts || "<unknown>");
+        delete costs[box.boxId];
+      }
     });
 
     //  Any costs we didn't map should be found.
@@ -136,7 +146,9 @@ program
 async function run() {
   try {
     await program.parseAsync();
-  } catch (err) {
+    // TODO(refactor): better error typing.
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  } catch (err: any) {
     //  TODO: if the 'verbose' flag has been set, log the error object.
     if (err instanceof TerminatingWarning) {
       theme.printWarning(err.message);

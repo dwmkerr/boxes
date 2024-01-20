@@ -3,7 +3,7 @@ import { mockClient } from "aws-sdk-client-mock";
 import "aws-sdk-client-mock-jest";
 import { getBoxes } from "./get-boxes";
 
-import describeInstancesResponse from "./fixtures/aws-ec2-describe-instances.json";
+import describeInstancesResponse from "../fixtures/aws-ec2-describe-instances.json";
 
 describe("get-boxes", () => {
   test("can get boxes", async () => {

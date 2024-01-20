@@ -1,12 +1,21 @@
 import {
   EC2Client,
-  DescribeInstancesCommand,
   StartInstancesCommand,
   StopInstancesCommand,
 } from "@aws-sdk/client-ec2";
-import { getBoxes } from "./get-boxes.js";
+import { getBoxes } from "./get-boxes";
 
-export async function startOrStopBoxes(boxIds, start) {
+export interface BoxTransition {
+  boxId: string;
+  instanceId: string | undefined;
+  currentState: string;
+  previousState: string;
+}
+
+export async function startOrStopBoxes(
+  boxIds: string[],
+  start: boolean,
+): Promise<BoxTransition[]> {
   //  Get the boxes.
   const boxes = await getBoxes();
 
@@ -22,7 +31,7 @@ export async function startOrStopBoxes(boxIds, start) {
 
   const instanceIds = boxInstanceIds
     .map((biid) => biid.instanceId)
-    .filter((iid) => iid);
+    .filter((iid): iid is string => !!iid);
 
   const client = new EC2Client();
 
@@ -36,13 +45,17 @@ export async function startOrStopBoxes(boxIds, start) {
 
     //  Map the new state from the response.
     const newInstancesStates = boxInstanceIds.map((biid) => {
-      const startingInstance = response.StartingInstances.find(
+      const startingInstance = response.StartingInstances?.find(
         (si) => si.InstanceId === biid.instanceId,
       );
+      const currentStateName =
+        startingInstance?.CurrentState?.Name || "unknown";
+      const previousStateName =
+        startingInstance?.PreviousState?.Name || "unknown";
       return {
         ...biid,
-        currentState: startingInstance.CurrentState.Name,
-        previousState: startingInstance.PreviousState.Name,
+        currentState: currentStateName,
+        previousState: previousStateName,
       };
     });
     return newInstancesStates;
@@ -53,13 +66,17 @@ export async function startOrStopBoxes(boxIds, start) {
       }),
     );
     const newInstancesStates = boxInstanceIds.map((biid) => {
-      const startingInstance = response.StoppingInstances.find(
+      const startingInstance = response.StoppingInstances?.find(
         (si) => si.InstanceId === biid.instanceId,
       );
+      const currentStateName =
+        startingInstance?.CurrentState?.Name || "unknown";
+      const previousStateName =
+        startingInstance?.PreviousState?.Name || "unknown";
       return {
         ...biid,
-        currentState: startingInstance.CurrentState.Name,
-        previousState: startingInstance.PreviousState.Name,
+        currentState: currentStateName,
+        previousState: previousStateName,
       };
     });
     return newInstancesStates;

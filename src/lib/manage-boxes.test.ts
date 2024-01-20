@@ -3,7 +3,7 @@ import { mockClient } from "aws-sdk-client-mock";
 import "aws-sdk-client-mock-jest";
 import { getBoxes } from "./get-boxes";
 
-import describeInstancesResponse from "./fixtures/aws-ec2-describe-instances.json";
+import describeInstancesResponse from "../fixtures/aws-ec2-describe-instances.json";
 
 describe("manage-boxes", () => {
   test("throws an unknown box id warning if a box is not found", async () => {

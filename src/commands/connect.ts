@@ -1,26 +1,16 @@
-import { getBoxes } from "./lib/get-boxes";
-import { startOrStopBoxes } from "./manage-boxes";
+// TODO ts
+// import clipboard from "clipboardy";
+import { getBoxes } from "../lib/get-boxes";
 // TODO ts
 // import open from "open";
-import { getBoxConfig } from "./config";
-import { TerminatingWarning } from "./errors";
+import { getBoxConfig } from "../config";
+import { TerminatingWarning } from "../errors";
 
-export async function list() {
-  const boxes = await getBoxes();
-  return boxes;
-}
-
-export async function info(boxId) {
-  const boxes = await getBoxes();
-  const box = boxes.find((b) => b.boxId === boxId);
-  console.log(box);
-}
-
-export async function start(boxId) {
-  return await startOrStopBoxes([boxId], true);
-}
-
-export async function ssh(boxId, openConnection) {
+export async function connect(
+  boxId: string,
+  openConnection: boolean,
+  copyPassword: boolean,
+) {
   //  First, we need to load box configuration. If it is missing, or we don't
   //  have configuration for the given box, we'll bail.
   const boxesConfig = await getBoxConfig();
@@ -41,16 +31,30 @@ export async function ssh(boxId, openConnection) {
 
   //  Expand the url string, which'll look something like this:
   //  http://${host}:9091/transmission/web/
-  const command = boxConfig.sshCommand
+  const expandedUrl = boxConfig.connectUrl
     .replace("${host}", box.instance.PublicDnsName)
     .replace("${username}", boxConfig.username);
+
+  //  If the user has asked for the password to be copied, put it on the
+  //  clipboard.
+  if (copyPassword) {
+    // TODO ts
+    // clipboard.writeSync(boxConfig.password);
+    console.log('Clipboard currently broken, password is:');
+    console.log(boxConfig.password);
+  }
 
   //  If the user has requested to open the connection, open it now.
   if (openConnection) {
     // TODO ts
-    // await open(command);
-    console.log("TODO typescript refactor");
+    // await open(expandedUrl);
+    console.log('Clipboard currently broken, password is:');
+    console.log(boxConfig.password);
   }
 
-  return command;
+  return {
+    url: expandedUrl,
+    username: boxConfig.username,
+    password: boxConfig.password,
+  };
 }
