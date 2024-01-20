@@ -1,6 +1,8 @@
 # todo
 
 test ssh, new torrent script with logging, keep existing script for testing
+detach this eve
+region in config
 
 # boxes
 

@@ -1,3 +1,5 @@
+import { Instance } from "@aws-sdk/client-ec2";
+
 export enum BoxState {
   Unknown,
   Pending,
@@ -32,5 +34,5 @@ export interface Box {
   name: string;
   state: BoxState;
   instanceId: string | undefined;
-  instance: any;
+  instance: Instance | undefined;
 }

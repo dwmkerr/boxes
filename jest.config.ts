@@ -1,4 +1,4 @@
-import type {Config} from 'jest';
+import type { Config } from "jest";
 /*
  * For a detailed explanation regarding each configuration property, visit:
  * https://jestjs.io/docs/configuration
@@ -45,8 +45,8 @@ const config: Config = {
   coverageProvider: "v8",
 
   //  The types of coverage reporters to use.
-  coverageReporters: [ "text", "cobertura" ],
-   
+  coverageReporters: ["text", "cobertura"],
+
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
   // setupFilesAfterEnv: ["./src/setup-jest.js"],
 
@@ -55,4 +55,3 @@ const config: Config = {
 };
 
 export default config;
-
