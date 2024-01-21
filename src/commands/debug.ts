@@ -31,7 +31,11 @@ export async function debug(command: string, parameters: string[]) {
     const detachableVolumes = await getDetachableVolumes(instanceId);
     logJson(detachableVolumes);
     console.log("Snapshotting / tagging...");
-    const result = await snapshotTagDeleteVolumes(detachableVolumes, tags);
+    const result = await snapshotTagDeleteVolumes(
+      instanceId,
+      detachableVolumes,
+      tags,
+    );
     logJson(result);
 
     return result;

@@ -4,6 +4,9 @@ import {
   EC2Client,
   VolumeAttachment,
   TagSpecification,
+  CreateTagsCommand,
+  DetachVolumeCommand,
+  DeleteVolumeCommand,
 } from "@aws-sdk/client-ec2";
 import { getConfiguration } from "../configuration";
 import { TerminatingWarning } from "./errors";
@@ -65,6 +68,7 @@ export async function getDetachableVolumes(
 }
 
 export async function snapshotTagDeleteVolumes(
+  instanceId: string,
   volumes: DetachableVolume[],
   tags: Record<string, string>[],
 ): Promise<SnapshottedAndDeletedVolume[]> {
@@ -76,8 +80,20 @@ export async function snapshotTagDeleteVolumes(
     Value: tag.value,
   }));
 
-  //  Detach each volume.
-  const results = await Promise.all(
+  //  Detach each volume. No useful results are returned, but the client will
+  //  throw on an error.
+  //  TODO we may need to 'wait' as well, no built in parameter for this.
+  await Promise.all(
+    volumes.map(async (volume) => {
+      return await client.send(
+        new DetachVolumeCommand({ VolumeId: volume.volumeId }),
+      );
+    }),
+  );
+
+  //  Snapshot each volume.
+  //  TODO we may need to 'wait' as well, no built in parameter for this.
+  const snapshots = await Promise.all(
     volumes.map(async (volume) => {
       const response = await client.send(
         new CreateSnapshotCommand({
@@ -104,5 +120,30 @@ export async function snapshotTagDeleteVolumes(
     }),
   );
 
-  return results;
+  //  Now we must tag the instance with the details of the snapshots, so that
+  //  we can later restore them. Note that there is no response for this call,
+  //  it will just throw for errors.
+  const snapshotDetails = snapshots.map((snapshot) => ({
+    snapshotId: snapshot.snapshotId,
+    device: snapshot.device,
+  }));
+  const snapshotDetailsTag = {
+    Key: "boxes.volumesnapshots",
+    Value: JSON.stringify(snapshotDetails),
+  };
+  await client.send(
+    new CreateTagsCommand({
+      Resources: [instanceId],
+      Tags: [snapshotDetailsTag],
+    }),
+  );
+
+  //  We've created the snapshots, now we can delete the volumes.
+  await Promise.all(
+    volumes.map(async (volume) => {
+      await client.send(new DeleteVolumeCommand({ VolumeId: volume.volumeId }));
+    }),
+  );
+
+  return snapshots;
 }
