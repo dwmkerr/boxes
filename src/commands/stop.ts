@@ -2,6 +2,7 @@ import { DescribeVolumesCommand, EC2Client, StopInstancesCommand } from "@aws-sd
 import { TerminatingWarning } from "../lib/errors";
 import { getBoxes } from "../lib/get-boxes";
 import { awsStateToBoxState } from "../box";
+import { getConfiguration } from "../configuration";
 
 interface DetachedVolumes {
   volumeId: string;
@@ -24,7 +25,8 @@ export async function stop(boxId: string, detach: boolean) {
   }
 
   //  Create an EC2 client.
-  const client = new EC2Client({});
+  const { aws: awsConfig } = await getConfiguration();
+  const client = new EC2Client(awsConfig);
 
   //  If we are going to detach, we need to get the state of each attached
   //  volume so that we can store it in a tag on the box, which will be used

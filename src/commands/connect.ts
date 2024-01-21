@@ -1,9 +1,7 @@
-//  Note that 'clipboardy' and 'open' require dynamic imports so that this
-//  can be packaged as a commonjs module. The dyanmic imports are directly
 //  used in the 'connect' function below.
 // import clipboard from "clipboardy";
 import { getBoxes } from "../lib/get-boxes";
-import { getBoxConfig } from "../config";
+import { getConfiguration } from "../configuration";
 import { TerminatingWarning } from "../lib/errors";
 
 export async function connect(
@@ -13,7 +11,7 @@ export async function connect(
 ) {
   //  First, we need to load box configuration. If it is missing, or we don't
   //  have configuration for the given box, we'll bail.
-  const boxesConfig = await getBoxConfig();
+  const boxesConfig = await getConfiguration();
   const boxConfig = boxesConfig.boxes[boxId];
   if (!boxConfig) {
     throw new TerminatingWarning(

@@ -5,6 +5,7 @@ import { list, info } from "./commands";
 import { start } from "./commands/start";
 import { stop } from "./commands/stop";
 import { ssh } from "./commands/ssh";
+import { config } from "./commands/config";
 import { getCosts } from "./commands/getCosts";
 import { connect } from "./commands/connect";
 import theme from "./theme";
@@ -135,6 +136,14 @@ program
       }
       theme.printBoxDetail("Costs (this month)", cost);
     });
+  });
+
+program
+  .command("config")
+  .description("Show current configuration")
+  .action(async () => {
+    const configuration = await config();
+    console.log(JSON.stringify(configuration, null, 2));
   });
 
 async function run() {
