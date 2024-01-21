@@ -1,10 +1,9 @@
 # todo
 
-test ssh, new torrent script with logging, keep existing script for testing
-detach this eve
-region in config
+- [ ] node-debug and re-rerun commands via 'debug' function, test end to end
+- [ ] return a sensible summary value for snapshot restore
+- [ ] new task list - docs, function, parameters, cost saving info, etc
 
-test a burner box for michelle's book
 
 # boxes
 
