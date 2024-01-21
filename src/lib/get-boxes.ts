@@ -1,9 +1,11 @@
 import { EC2Client, DescribeInstancesCommand, Tag } from "@aws-sdk/client-ec2";
 import { Box, awsStateToBoxState } from "../box";
 import { TerminatingWarning } from "./errors";
+import { getConfiguration } from "../configuration";
 
 export async function getBoxes(): Promise<Box[]> {
-  const client = new EC2Client({});
+  const { aws: awsConfig } = await getConfiguration();
+  const client = new EC2Client(awsConfig);
 
   const instancesResponse = await client.send(
     new DescribeInstancesCommand({

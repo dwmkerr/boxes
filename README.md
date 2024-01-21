@@ -192,6 +192,37 @@ Additional parameters for `costs` are available:
 |-------------------------|---------------------------------------------------|
 | `-m`, `--month <month>` | Get costs for a specific month. 1=Jan, 2=Feb etc. |
 
+### `boxes config`
+
+Shows the current configuration that has been loaded for `boxes`. Can be helpful for troubleshooting whether things like the region are set properly:
+
+```bash
+% boxes config
+{
+  "boxes": ...
+  "aws": {
+    "region": "us-west-2"
+  }
+}
+```
+
+## Configuration
+
+A local `boxes.json` file can be used for configuration. The following values are supported:
+
+```
+{
+  "boxes": {
+    /* box configuration */
+  },
+  "aws": {
+    "region": "us-west-2"
+  }
+}
+```
+
+Box configuration is evolving rapidly and the documentation will be updated. The AWS configuration is more stable.
+
 ## Enabling Cost Reporting
 
 If you want to be able to show the costs that are associated with each box, you will need to:
@@ -249,6 +280,14 @@ Note that you will need to rebuild the code if you change it, so run `npm run bu
 ```bash
 npm run relink
 ```
+
+If you are developing and would like to run the `boxes` command without relinking, just build, link, then run:
+
+```bash
+npm run build:watch
+```
+
+This will keep the `./build` folder up-to-date and the `boxes` command will use the latest compiled code.
 
 ### Error Handling
 

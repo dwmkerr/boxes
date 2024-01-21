@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "build:watch": "tsc -w",
     "start": "ts-node ./src/cli.ts",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "lint": "eslint .",
