@@ -1,13 +1,12 @@
-import { DescribeVolumesCommand, EC2Client, StopInstancesCommand } from "@aws-sdk/client-ec2";
+import {
+  DescribeVolumesCommand,
+  EC2Client,
+  StopInstancesCommand,
+} from "@aws-sdk/client-ec2";
 import { TerminatingWarning } from "../lib/errors";
 import { getBoxes } from "../lib/get-boxes";
 import { awsStateToBoxState } from "../box";
 import { getConfiguration } from "../configuration";
-
-interface DetachedVolumes {
-  volumeId: string;
-  device: string;
-}
 
 export async function stop(boxId: string, detach: boolean) {
   //  Get the box, fail with a warning if it is not found.
@@ -56,7 +55,6 @@ export async function stop(boxId: string, detach: boolean) {
       currentState: awsStateToBoxState(box.instance?.State?.Name),
       previousState: awsStateToBoxState(box.instance?.State?.Name),
     };
-
   }
 
   //  Send the 'stop instances' command. Find the status of the stopping

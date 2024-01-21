@@ -2,6 +2,7 @@
 
 import { Command } from "commander";
 import { list, info } from "./commands";
+import { debug } from "./commands/debug";
 import { start } from "./commands/start";
 import { stop } from "./commands/stop";
 import { ssh } from "./commands/ssh";
@@ -144,6 +145,15 @@ program
   .action(async () => {
     const configuration = await config();
     console.log(JSON.stringify(configuration, null, 2));
+  });
+
+program
+  .command("debug")
+  .description("Additional commands used for debugging")
+  .argument("<command>", 'debug command to use, e.g. "test-detach"')
+  .action(async (command) => {
+    const result = await debug(command);
+    console.log(JSON.stringify(result));
   });
 
 async function run() {

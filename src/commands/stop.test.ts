@@ -1,11 +1,14 @@
-import { EC2Client, DescribeInstancesCommand, DescribeVolumesCommand } from "@aws-sdk/client-ec2";
+import {
+  EC2Client,
+  DescribeInstancesCommand,
+  DescribeVolumesCommand,
+} from "@aws-sdk/client-ec2";
 import { mockClient } from "aws-sdk-client-mock";
 import "aws-sdk-client-mock-jest";
 import { stop } from "./stop";
 
 import describeInstancesResponse from "../fixtures/aws-ec2-describe-instances.json";
 import describeVolumesTorrentBoxResponse from "../fixtures/aws-ec2-describe-volumes-torrent-box.json";
-import { BoxState } from "../box";
 
 describe("stop", () => {
   test("can stop boxes", async () => {

@@ -287,7 +287,7 @@ If you are developing and would like to run the `boxes` command without relinkin
 npm run build:watch
 ```
 
-This will keep the `./build` folder up-to-date and the `boxes` command will use the latest compiled code.
+This will keep the `./build` folder up-to-date and the `boxes` command will use the latest compiled code. This will *sometimes* work but it might miss certain changes, so `relink` is the safer option. `build:watch` works well if you are making small changes to existing files, but not if you are adding new files (it seems).
 
 ### Error Handling
 
@@ -366,6 +366,7 @@ Quick and dirty task-list.
 
 ## Later
 
+- [ ] refactor: make 'debug' command local/debug build only?
 - [ ] feat: 'import' command to take an instance ID and create local box config for it and tag the instance
 - [ ] docs: cost allocation tags blog post
 - [ ] docs: create and share blogpost
