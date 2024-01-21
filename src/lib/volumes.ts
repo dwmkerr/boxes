@@ -1,13 +1,20 @@
 import {
   DescribeVolumesCommand,
+  CreateSnapshotCommand,
   EC2Client,
   VolumeAttachment,
+  TagSpecification,
 } from "@aws-sdk/client-ec2";
 import { getConfiguration } from "../configuration";
+import { TerminatingWarning } from "./errors";
 
-interface DetachableVolume {
+export interface DetachableVolume {
   volumeId: string;
   device: string;
+}
+
+export interface SnapshottedAndDeletedVolume extends DetachableVolume {
+  snapshotId: string;
 }
 
 export async function getDetachableVolumes(
@@ -55,4 +62,47 @@ export async function getDetachableVolumes(
   );
 
   return detachableVolumes;
+}
+
+export async function snapshotTagDeleteVolumes(
+  volumes: DetachableVolume[],
+  tags: Record<string, string>[],
+): Promise<SnapshottedAndDeletedVolume[]> {
+  //  Create an EC2 client.
+  const { aws: awsConfig } = await getConfiguration();
+  const client = new EC2Client(awsConfig);
+  const awsTags = tags.map((tag) => ({
+    Key: tag.key,
+    Value: tag.value,
+  }));
+
+  //  Detach each volume.
+  const results = await Promise.all(
+    volumes.map(async (volume) => {
+      const response = await client.send(
+        new CreateSnapshotCommand({
+          VolumeId: volume.volumeId,
+          TagSpecifications: [
+            {
+              ResourceType: "snapshot",
+              Tags: awsTags,
+            },
+          ],
+        }),
+      );
+
+      if (!response.SnapshotId) {
+        throw new TerminatingWarning(
+          `Failed to get a snapshot ID when snaphotting volume ${volume}, aborting to prevent data loss`,
+        );
+      }
+
+      return {
+        ...volume,
+        snapshotId: response.SnapshotId,
+      };
+    }),
+  );
+
+  return results;
 }

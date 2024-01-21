@@ -375,3 +375,12 @@ Quick and dirty task-list.
 - [ ] feat: autocomplete
 - [ ] feat: aws profile in config file
 - [ ] epic: 'boxes create' to create from a template
+
+## Epic - Interactive Setup
+
+Run `boxes init` - lets you choose a region, select instances, give a name.
+Will add the tags - but will also add the tags to the volumes and will notify if the cost explorer tag is not setup.
+Creates the local config.
+
+This would be demo-able.
+

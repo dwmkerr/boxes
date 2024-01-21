@@ -32,6 +32,9 @@ export async function stop(boxId: string, detach: boolean) {
   //  when we restart the box later to attach to the correct place.
   //  TODO; actally, all of this should be in 'lib' in a dedicated set of
   //  smaller functions...
+  //  TODO get-detachable-volumes
+  //  TODO tag boxes
+  //  TODO detach-and-snapshot
   if (detach) {
     console.log("debug: instance will not be stopped, testing detach");
     //

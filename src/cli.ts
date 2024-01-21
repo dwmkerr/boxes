@@ -151,8 +151,9 @@ program
   .command("debug")
   .description("Additional commands used for debugging")
   .argument("<command>", 'debug command to use, e.g. "test-detach"')
-  .action(async (command) => {
-    const result = await debug(command);
+  .argument("<parameters...>", 'parameters for the command, e.g. "one two"')
+  .action(async (command, parameters) => {
+    const result = await debug(command, parameters);
     console.log(JSON.stringify(result));
   });
 
