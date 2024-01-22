@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import dbg from "debug";
 import { Command } from "commander";
 import { list, info } from "./commands";
 import { debug } from "./commands/debug";
@@ -13,6 +14,9 @@ import theme from "./theme";
 import { TerminatingWarning } from "./lib/errors";
 import packageJson from "../package.json";
 import { BoxState } from "./box";
+
+//  While we're developing, debug output is always enabled.
+dbg.enable("boxes*");
 
 const ERROR_CODE_WARNING = 1;
 const ERROR_CODE_CONNECTION = 2;

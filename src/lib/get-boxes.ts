@@ -1,12 +1,16 @@
+import dbg from "debug";
 import { EC2Client, DescribeInstancesCommand, Tag } from "@aws-sdk/client-ec2";
 import { Box, awsStateToBoxState } from "../box";
 import { TerminatingWarning } from "./errors";
 import { getConfiguration } from "../configuration";
 
+const debug = dbg("boxes");
+
 export async function getBoxes(): Promise<Box[]> {
   const { aws: awsConfig } = await getConfiguration();
   const client = new EC2Client(awsConfig);
 
+  debug("preparing to describe instances...");
   const instancesResponse = await client.send(
     new DescribeInstancesCommand({
       // TODO typescript this seems to not be found...
@@ -23,6 +27,7 @@ export async function getBoxes(): Promise<Box[]> {
   if (!instancesResponse || !instancesResponse.Reservations) {
     throw new TerminatingWarning("Failed to query AWS for boxes/reservations");
   }
+  debug("...described successfully");
 
   //  Filter down to instances which have a state.
   const instances = instancesResponse.Reservations.flatMap((r) => {
@@ -42,6 +47,7 @@ export async function getBoxes(): Promise<Box[]> {
     state: awsStateToBoxState(i?.State?.Name),
     instance: i,
   }));
+  debug(`found ${boxes.length} boxes`);
 
   return boxes;
 }

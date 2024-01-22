@@ -1,8 +1,9 @@
-//  used in the 'connect' function below.
-// import clipboard from "clipboardy";
+import dbg from "debug";
 import { getBoxes } from "../lib/get-boxes";
 import { getConfiguration } from "../configuration";
 import { TerminatingWarning } from "../lib/errors";
+
+const debug = dbg("boxes:connect");
 
 export async function connect(
   boxId: string,
@@ -36,9 +37,11 @@ export async function connect(
 
   //  Expand the url string, which'll look something like this:
   //  http://${host}:9091/transmission/web/
+  debug(`expanding from: ${boxConfig.connectUrl}`);
   const expandedUrl = boxConfig.connectUrl
     .replace("${host}", box.instance.PublicDnsName)
     .replace("${username}", boxConfig.username);
+  debug(`expanded result: ${boxConfig.connectUrl}`);
 
   //  If the user has asked for the password to be copied, put it on the
   //  clipboard.

@@ -1,3 +1,4 @@
+import dbg from "debug";
 import {
   DescribeVolumesCommand,
   EC2Client,
@@ -7,6 +8,8 @@ import { TerminatingWarning } from "../lib/errors";
 import { getBoxes } from "../lib/get-boxes";
 import { awsStateToBoxState } from "../box";
 import { getConfiguration } from "../configuration";
+
+const debug = dbg("boxes:stop");
 
 export async function stop(boxId: string, detach: boolean) {
   //  Get the box, fail with a warning if it is not found.
@@ -62,11 +65,13 @@ export async function stop(boxId: string, detach: boolean) {
 
   //  Send the 'stop instances' command. Find the status of the stopping
   //  instance in the respose.
+  debug(`preparing to stop instance ${box.instanceId}...`);
   const response = await client.send(
     new StopInstancesCommand({
       InstanceIds: [box.instanceId],
     }),
   );
+  debug(`...complete, ${response.StoppingInstances?.length} instances stopped`);
   const stoppingInstance = response.StoppingInstances?.find(
     (si) => si.InstanceId === box.instanceId,
   );

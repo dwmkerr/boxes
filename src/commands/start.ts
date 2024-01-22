@@ -1,8 +1,11 @@
+import dbg from "debug";
 import { EC2Client, StartInstancesCommand } from "@aws-sdk/client-ec2";
 import { TerminatingWarning } from "../lib/errors";
 import { getBoxes } from "../lib/get-boxes";
 import { BoxState, awsStateToBoxState } from "../box";
 import { getConfiguration } from "../configuration";
+
+const debug = dbg("boxes:start");
 
 export interface BoxTransition {
   boxId: string;
@@ -32,19 +35,21 @@ export async function start(boxId: string): Promise<BoxTransition> {
 
   //  Send the 'stop instances' command. Find the status of the stopping
   //  instance in the respose.
+  debug(`preparing to start instance ${box.instanceId}...`);
   const response = await client.send(
     new StartInstancesCommand({
       InstanceIds: [box.instanceId],
     }),
   );
-  const stoppingInstance = response.StartingInstances?.find(
+  debug(`...complete, ${response.StartingInstances?.length} instances started`);
+  const startingInstances = response.StartingInstances?.find(
     (si) => si.InstanceId === box.instanceId,
   );
 
   return {
     boxId,
     instanceId: box.instanceId,
-    currentState: awsStateToBoxState(stoppingInstance?.CurrentState?.Name),
-    previousState: awsStateToBoxState(stoppingInstance?.PreviousState?.Name),
+    currentState: awsStateToBoxState(startingInstances?.CurrentState?.Name),
+    previousState: awsStateToBoxState(startingInstances?.PreviousState?.Name),
   };
 }

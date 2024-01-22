@@ -1,5 +1,9 @@
 # todo
 
+- [ ] error seems to be not setting the 'root device' (it is using the wrong vol)
+      to fix:
+      NOTE: it seems that the device name is probably what was wrong, maybe the
+      snapshot IDs got mixed up. add debugging and re-try.
 - [ ] node-debug and re-rerun commands via 'debug' function, test end to end
 - [ ] return a sensible summary value for snapshot restore
 - [ ] new task list - docs, function, parameters, cost saving info, etc
@@ -287,6 +291,14 @@ npm run build:watch
 ```
 
 This will keep the `./build` folder up-to-date and the `boxes` command will use the latest compiled code. This will *sometimes* work but it might miss certain changes, so `relink` is the safer option. `build:watch` works well if you are making small changes to existing files, but not if you are adding new files (it seems).
+
+### Debugging
+
+The [`debug`](https://github.com/debug-js/debug) library is used to make it easy to provide debug level output. Debug logging to the console can be enabled with:
+
+```bash
+DEBUG='boxes*' boxes list
+```
 
 ### Error Handling
 
