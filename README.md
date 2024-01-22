@@ -1,10 +1,15 @@
 # todo
 
+- [ ] delete snapshot on successful restore
+- [ ] better logging for non-debug mode (warn user can take time)
+- [ ] propagate tags
+- [ ] data loss wawrning and generalise the 'yes' flag
 - [ ] error seems to be not setting the 'root device' (it is using the wrong vol)
       to fix:
       NOTE: it seems that the device name is probably what was wrong, maybe the
       snapshot IDs got mixed up. add debugging and re-try.
 - [ ] node-debug and re-rerun commands via 'debug' function, test end to end
+      using steambox (backup first)
 - [ ] return a sensible summary value for snapshot restore
 - [ ] new task list - docs, function, parameters, cost saving info, etc
 

@@ -1,4 +1,9 @@
-import { getDetachableVolumes, snapshotTagDeleteVolumes } from "../lib/volumes";
+import { TerminatingWarning } from "../lib/errors";
+import {
+  getDetachableVolumes,
+  recreateVolumesFromSnapshotTag,
+  snapshotTagDeleteVolumes,
+} from "../lib/volumes";
 
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
 function logJson(val: any) {
@@ -26,6 +31,7 @@ export async function debug(command: string, parameters: string[]) {
       return;
     }
 
+    //  TODO fix tag settings
     const tags = [{ key: "boxes.boxid", value: "torrentbox" }];
     console.log("Getting detachable volumes...");
     const detachableVolumes = await getDetachableVolumes(instanceId);
@@ -39,6 +45,17 @@ export async function debug(command: string, parameters: string[]) {
     logJson(result);
 
     return result;
+  } else if (command === "test-restore-volumes") {
+    console.log("debug: test-restore-volumes");
+    const instanceId = parameters[0];
+    if (!instanceId) {
+      console.error("instanceid is required as the first parameter");
+      return;
+    }
+    const result = await recreateVolumesFromSnapshotTag(instanceId);
+    console.log(result);
+  } else {
+    throw new TerminatingWarning(`unknown debug command ${command}`);
   }
   return {};
 }

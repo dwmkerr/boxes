@@ -4,10 +4,10 @@ import {
   CreateSnapshotCommand,
   CreateTagsCommand,
   DetachVolumeCommand,
-  DescribeTagsCommand,
   CreateVolumeCommand,
   DescribeInstancesCommand,
   AttachVolumeCommand,
+  DeleteSnapshotCommand,
 } from "@aws-sdk/client-ec2";
 import { mockClient } from "aws-sdk-client-mock";
 import "aws-sdk-client-mock-jest";
@@ -164,7 +164,7 @@ describe("volumes", () => {
           {
             Key: "boxes.volumesnapshots",
             Value:
-              '[{"snapshotId":"snap-03c3efc7e9254ab0a","device":"/dev/xvda"},{"snapshotId":"snap-056afd3da4b3b003b","device":"/dev/xvdf"}]',
+              '[{"device":"/dev/xvda","snapshotId":"snap-03c3efc7e9254ab0a"},{"device":"/dev/xvdf","snapshotId":"snap-056afd3da4b3b003b"}]',
           },
         ],
       });
@@ -223,8 +223,20 @@ describe("volumes", () => {
         .resolves(attachVolume2Response);
 
       //  Recreate the volumes from the snapshot tag.
-      const result = await recreateVolumesFromSnapshotTag(instanceId);
-      console.log("DEBEG", result);
+      const recreatedVolumes = await recreateVolumesFromSnapshotTag(instanceId);
+
+      expect(recreatedVolumes).toEqual([
+        {
+          snapshotId: snapshotId1,
+          device: device1,
+          volumeId: "vol-0c3940cade857692b",
+        },
+        {
+          snapshotId: snapshotId2,
+          device: device2,
+          volumeId: "vol-059b4ea55caf83199",
+        },
+      ]);
 
       //  First, instance is queried to get snapshot and AZ data.
       expect(ec2Mock).toHaveReceivedCommandWith(DescribeInstancesCommand, {
@@ -248,6 +260,14 @@ describe("volumes", () => {
       });
       expect(ec2Mock).toHaveReceivedCommandWith(AttachVolumeCommand, {
         Device: device2,
+      });
+
+      //  Finally, the two snapshots should have been deleted.
+      expect(ec2Mock).toHaveReceivedCommandWith(DeleteSnapshotCommand, {
+        SnapshotId: snapshotId1,
+      });
+      expect(ec2Mock).toHaveReceivedCommandWith(DeleteSnapshotCommand, {
+        SnapshotId: snapshotId2,
       });
     });
   });

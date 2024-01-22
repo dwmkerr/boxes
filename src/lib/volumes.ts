@@ -1,3 +1,4 @@
+import dbg from "debug";
 import {
   DescribeVolumesCommand,
   CreateSnapshotCommand,
@@ -6,14 +7,16 @@ import {
   CreateTagsCommand,
   DetachVolumeCommand,
   DeleteVolumeCommand,
-  DescribeTagsCommand,
   CreateVolumeCommand,
   DescribeInstancesCommand,
   AttachVolumeCommand,
+  DeleteSnapshotCommand,
 } from "@aws-sdk/client-ec2";
 import { getConfiguration } from "../configuration";
 import { TerminatingWarning } from "./errors";
 import * as aws from "./aws-helpers";
+
+const debug = dbg("boxes:volumes");
 
 export interface DetachableVolume {
   volumeId: string;
@@ -36,6 +39,7 @@ export async function getDetachableVolumes(
   const client = new EC2Client(awsConfig);
 
   //  Get the volumes for the box.
+  debug(`getting detachable volumes for ${instanceId}...`);
   const response = await client.send(
     new DescribeVolumesCommand({
       Filters: [
@@ -49,6 +53,7 @@ export async function getDetachableVolumes(
 
   //  If there are no volumes, we're done.
   if (!response.Volumes) {
+    debug("no volumes found");
     return [];
   }
 
@@ -60,7 +65,11 @@ export async function getDetachableVolumes(
   //  Grab the detachable volumes from the response.
   const detachableVolumes = volumeAttachments.reduce(
     (result: DetachableVolume[], attachment) => {
+      debug(
+        `found volume ${attachment.VolumeId} on device ${attachment.Device}`,
+      );
       if (!attachment.VolumeId || !attachment.Device) {
+        debug(`volumeid or device missing, skipping this volume`);
         return result;
       }
       result.push({
@@ -72,6 +81,7 @@ export async function getDetachableVolumes(
     [],
   );
 
+  debug(`successfully found ${detachableVolumes.length} detachable volumes`);
   return detachableVolumes;
 }
 
@@ -87,12 +97,28 @@ export async function snapshotTagDeleteVolumes(
     Key: tag.key,
     Value: tag.value,
   }));
+  debug(`preparing to snapshot/tag/delete volumes for instance ${instanceId}`);
+
+  debug(`waiting for instance ${instanceId} to be in 'stopped' state...`);
+  const instanceStopped = await aws.waitForInstanceState(
+    client,
+    instanceId,
+    "stopped",
+    5000,
+    720, // 5s*720 = 1hr
+  );
+  if (!instanceStopped) {
+    throw new TerminatingWarning(
+      `timed out waiting for instance ${instanceId} to enter 'stopped' state`,
+    );
+  }
 
   //  Detach each volume. No useful results are returned, but the client will
   //  throw on an error.
   //  TODO we may need to 'wait' as well, no built in parameter for this.
   await Promise.all(
     volumes.map(async (volume) => {
+      debug(`detaching ${volume.volumeId}...`);
       return await client.send(
         new DetachVolumeCommand({ VolumeId: volume.volumeId }),
       );
@@ -103,6 +129,7 @@ export async function snapshotTagDeleteVolumes(
   //  TODO we may need to 'wait' as well, no built in parameter for this.
   const snapshots = await Promise.all(
     volumes.map(async (volume) => {
+      debug(`snapshotting ${volume.volumeId}...`);
       const response = await client.send(
         new CreateSnapshotCommand({
           VolumeId: volume.volumeId,
@@ -135,6 +162,7 @@ export async function snapshotTagDeleteVolumes(
     Key: "boxes.volumesnapshots",
     Value: aws.snapshotDetailsToTag(snapshots),
   };
+  debug("creating snapshot details tag", snapshotDetailsTag);
   await client.send(
     new CreateTagsCommand({
       Resources: [instanceId],
@@ -145,19 +173,27 @@ export async function snapshotTagDeleteVolumes(
   //  We've created the snapshots, now we can delete the volumes.
   await Promise.all(
     volumes.map(async (volume) => {
+      debug(`deleting ${volume.volumeId}...`);
       await client.send(new DeleteVolumeCommand({ VolumeId: volume.volumeId }));
     }),
   );
 
+  debug(
+    `successfully snapshotted/tagged/deleted ${snapshots.length} snapshots`,
+  );
   return snapshots;
 }
 
-export async function recreateVolumesFromSnapshotTag(instanceId: string) {
+export async function recreateVolumesFromSnapshotTag(
+  instanceId: string,
+): Promise<RecreatedVolume[]> {
   //  Create an EC2 client.
   const { aws: awsConfig } = await getConfiguration();
   const client = new EC2Client(awsConfig);
+  debug(`preparing to recreate volumes for instance ${instanceId}`);
 
   //  Get the details of the instance, we'll need the tags and AZ.
+  debug(`getting instance details...`);
   const result = await client.send(
     new DescribeInstancesCommand({
       InstanceIds: [instanceId],
@@ -189,28 +225,66 @@ export async function recreateVolumesFromSnapshotTag(instanceId: string) {
 
   //  From the snapshot details tag, load the actual snapshot details.
   const snapshotDetails = aws.snapshotDetailsFromTag(snapshotDetailsTag);
+  debug("loaded snapshot details from instance tag", snapshotDetails);
 
-  //  For each snapshot, create a volume and reattach.
-  const createVolumeResults = await Promise.all(
-    snapshotDetails.map((snapshot) => {
-      return client
-        .send(
+  //  We're now going to go through each snapshot, create a volume, attach,
+  //  and then delete the snapshot.
+  const recreatedVolumes = await Promise.all(
+    snapshotDetails.map(
+      async ({ snapshotId, device }): Promise<RecreatedVolume> => {
+        //  First, create the volume from the snapshot.
+        debug(
+          `creating volume from snapshot ${snapshotId} in AZ ${availabilityZone}...`,
+        );
+        const { VolumeId: volumeId } = await client.send(
           new CreateVolumeCommand({
-            SnapshotId: snapshot.snapshotId,
+            SnapshotId: snapshotId,
             AvailabilityZone: availabilityZone,
           }),
-        )
-        .then((createVolumeResult) => {
-          return client.send(
-            new AttachVolumeCommand({
-              InstanceId: instanceId,
-              VolumeId: createVolumeResult.VolumeId,
-              Device: snapshot.device,
-            }),
+        );
+        if (!volumeId) {
+          throw new Error(
+            `create volume from snapshot ${snapshotId} has no returned volume id`,
           );
-        });
-    }),
+        }
+
+        //  Wait for the volume to become ready.
+        debug(`waiting for volume ${volumeId} to be ready...`);
+        const ready = await aws.waitForVolumeReady(client, volumeId);
+        if (!ready) {
+          throw new TerminatingWarning(
+            `timed out waiting for volumes to restore from snapshots`,
+          );
+        }
+
+        //  Then attach the snapshot to the instance.
+        debug(`attaching volume ${volumeId} to ${instanceId} on ${device}...`);
+        await client.send(
+          new AttachVolumeCommand({
+            InstanceId: instanceId,
+            VolumeId: volumeId,
+            Device: device,
+          }),
+        );
+
+        //  Finally, delete the snapshot.
+        debug(`deleting snapshot ${snapshotId}...`);
+        await client.send(
+          new DeleteSnapshotCommand({
+            SnapshotId: snapshotId,
+          }),
+        );
+
+        //  We can return the details of the newly created volume.
+        return {
+          volumeId,
+          device,
+          snapshotId,
+        };
+      },
+    ),
   );
 
-  return {};
+  debug(`successfully recreated ${recreatedVolumes.length} volumes`);
+  return recreatedVolumes;
 }
