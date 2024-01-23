@@ -341,26 +341,7 @@ Typically occurs if AWS SDK packages are not at the exact same number as the `@a
 
 Quick and dirty task-list.
 
-## Epic - Volume Management
-- todo remove all timers crap from costs test - just check that the request matches the current date
-- then see if we can reduce the timeout for the other cost test
-
-- [ ] data loss wawrning and generalise the 'yes' flag
-- [x] delete snapshot on successful restore
-- [ ] better logging for non-debug mode (warn user can take time)
-- [ ] propagate tags
-- [ ] error seems to be not setting the 'root device' (it is using the wrong vol)
-      to fix:
-      NOTE: it seems that the device name is probably what was wrong, maybe the
-      snapshot IDs got mixed up. add debugging and re-try.
-- [ ] option to wait for snapshot creation - could be an option for all commands
-- [ ] node-debug and re-rerun commands via 'debug' function, test end to end
-      using steambox (backup first)
-- [ ] return a sensible summary value for snapshot restore
-- [ ] new task list - docs, function, parameters, cost saving info, etc
-
-
-## Alpha
+### Alpha
 
 - [x] feat: document copy password in connect, maybe better default off
 - [ ] refactor: suck it up and use TS
@@ -381,9 +362,9 @@ Quick and dirty task-list.
 - [ ] feat: boxes aws-console opens link eg (https://us-west-2.console.aws.amazon.com/ec2/home?region=us-west-2#InstanceDetails:instanceId=i-043a3c1ce6c9ea6ad)
 - [ ] bug: EBS devices not tagged -I've tagged two (manually) in jan - check w/ feb bill
 
-## Beta
+### Beta
 
-## Later
+### Later
 
 - [ ] refactor: make 'debug' command local/debug build only?
 - [ ] feat: 'import' command to take an instance ID and create local box config for it and tag the instance
@@ -396,11 +377,29 @@ Quick and dirty task-list.
 - [ ] epic: 'boxes create' to create from a template
 - [ ] refactor: find a better way to mock / inject config (rather than importing arbitrarily)
 
-## Epic - Interactive Setup
+### Epic - Interactive Setup
 
 Run `boxes init` - lets you choose a region, select instances, give a name.
 Will add the tags - but will also add the tags to the volumes and will notify if the cost explorer tag is not setup.
 Creates the local config.
 
 This would be demo-able.
+
+### Epic - Volume Management
+
+- [ ] delete tag on volume restore...
+- [ ] ...so that we can auto restore volumes when calling 'start'
+- [ ] data loss wawrning and generalise the 'yes' flag
+- [x] delete snapshot on successful restore
+- [ ] better logging for non-debug mode (warn user can take time)
+- [ ] propagate tags
+- [ ] error seems to be not setting the 'root device' (it is using the wrong vol)
+      to fix:
+      NOTE: it seems that the device name is probably what was wrong, maybe the
+      snapshot IDs got mixed up. add debugging and re-try.
+- [ ] option to wait for snapshot creation - could be an option for all commands
+- [ ] node-debug and re-rerun commands via 'debug' function, test end to end
+      using steambox (backup first)
+- [ ] return a sensible summary value for snapshot restore
+- [ ] new task list - docs, function, parameters, cost saving info, etc
 
