@@ -1,0 +1,20 @@
+{
+  "boxes": {
+    "steambox": {
+      "connectUrl": "dcv://${host}:8443",
+      "username": "Administrator",
+      "password": "<secret>",
+      "sshCommand": "open rdp://${host}"
+    },
+    "torrentbox": {
+      "connectUrl": "http://${username}@${host}:9091/transmission/web/",
+      "username": "admin",
+      "password": "<secret>",
+      "sshCommand": "ssh -i ~/.ssh/mykey.pem ec2-user@${host}"
+    }
+  },
+  "aws": {
+    "region": "us-west-2"
+  }
+}
+

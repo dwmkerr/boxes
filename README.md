@@ -364,6 +364,8 @@ Quick and dirty task-list.
 
 ### Beta
 
+- [ ] 'wait' flag for start/stop to wait until operation complete
+
 ### Later
 
 - [ ] refactor: make 'debug' command local/debug build only?
