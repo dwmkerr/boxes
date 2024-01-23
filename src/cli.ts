@@ -14,6 +14,7 @@ import theme from "./theme";
 import { TerminatingWarning } from "./lib/errors";
 import packageJson from "../package.json";
 import { BoxState } from "./box";
+import { assertConfirmation } from "./lib/cli-helpers";
 
 //  While we're developing, debug output is always enabled.
 dbg.enable("boxes*");
@@ -113,6 +114,14 @@ program
   .option("-y, --year <year>", "month of year", undefined)
   .option("-m, --month <month>", "month of year", undefined)
   .action(async (options) => {
+    //  Demand confirmation.
+    await assertConfirmation(
+      options,
+      "yes",
+      `The AWS cost explorer charges $0.01 per call.
+To accept charges, re-run with the '--yes' parameter.`,
+    );
+
     const boxes = await list();
     const costs = await getCosts({
       yes: options.yes,

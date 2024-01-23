@@ -342,11 +342,13 @@ Typically occurs if AWS SDK packages are not at the exact same number as the `@a
 Quick and dirty task-list.
 
 ## Epic - Volume Management
+- todo remove all timers crap from costs test - just check that the request matches the current date
+- then see if we can reduce the timeout for the other cost test
 
-- [ ] delete snapshot on successful restore
+- [ ] data loss wawrning and generalise the 'yes' flag
+- [x] delete snapshot on successful restore
 - [ ] better logging for non-debug mode (warn user can take time)
 - [ ] propagate tags
-- [ ] data loss wawrning and generalise the 'yes' flag
 - [ ] error seems to be not setting the 'root device' (it is using the wrong vol)
       to fix:
       NOTE: it seems that the device name is probably what was wrong, maybe the
@@ -392,6 +394,7 @@ Quick and dirty task-list.
 - [ ] feat: autocomplete
 - [ ] feat: aws profile in config file
 - [ ] epic: 'boxes create' to create from a template
+- [ ] refactor: find a better way to mock / inject config (rather than importing arbitrarily)
 
 ## Epic - Interactive Setup
 

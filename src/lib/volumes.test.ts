@@ -1,3 +1,4 @@
+import path from "path";
 import {
   EC2Client,
   DescribeVolumesCommand,
@@ -11,6 +12,7 @@ import {
 } from "@aws-sdk/client-ec2";
 import { mockClient } from "aws-sdk-client-mock";
 import "aws-sdk-client-mock-jest";
+import mock from "mock-fs";
 import {
   DetachableVolume,
   getDetachableVolumes,
@@ -29,6 +31,20 @@ import attachVolume1Response from "../fixtures/volumes-attach-volume1.json";
 import attachVolume2Response from "../fixtures/volumes-attach-volume2.json";
 
 describe("volumes", () => {
+  //  Mock the config file.
+  beforeEach(() => {
+    const boxesPath = path.join(path.resolve(), "./boxes.json");
+    mock({
+      [boxesPath]: mock.load(
+        path.join(path.resolve(), "./src/fixtures/boxes.json"),
+      ),
+    });
+  });
+
+  afterEach(() => {
+    mock.restore();
+  });
+
   describe("get-detachable-volumes", () => {
     test("can get detachable volumes from 'torrentbox'", async () => {
       //  Record fixtures with:

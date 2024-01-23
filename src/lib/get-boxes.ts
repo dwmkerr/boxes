@@ -3,7 +3,6 @@ import { EC2Client, DescribeInstancesCommand, Tag } from "@aws-sdk/client-ec2";
 import { Box, awsStateToBoxState } from "../box";
 import { TerminatingWarning } from "./errors";
 import { getConfiguration } from "../configuration";
-
 const debug = dbg("boxes");
 
 export async function getBoxes(): Promise<Box[]> {
