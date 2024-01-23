@@ -94,12 +94,8 @@ program
   .command("stop")
   .description("Stop a box")
   .argument("<boxId>", 'id of the box, e.g: "steambox"')
-  .option("--detach-volumes", "detach EBS volumes (experimental)", false)
-  .action(async (boxId, options) => {
-    const { instanceId, currentState, previousState } = await stop(
-      boxId,
-      options.detachVolumes,
-    );
+  .action(async (boxId) => {
+    const { instanceId, currentState, previousState } = await stop(boxId);
     console.log(
       `  ${theme.boxId(boxId)} (${instanceId}): ${theme.state(
         previousState,

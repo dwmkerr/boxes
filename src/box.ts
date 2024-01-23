@@ -34,5 +34,6 @@ export interface Box {
   name: string;
   state: BoxState;
   instanceId: string | undefined;
+  hasArchivedVolumes: boolean;
   instance: Instance | undefined;
 }

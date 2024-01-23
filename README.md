@@ -364,7 +364,7 @@ Quick and dirty task-list.
 
 ### Beta
 
-- [ ] 'wait' flag for start/stop to wait until operation complete
+- [ ] 'wait' flag for start/stop to wait until operation complete, default to 1hr
 
 ### Later
 
@@ -389,19 +389,14 @@ This would be demo-able.
 
 ### Epic - Volume Management
 
+- [ ] propagate tags w/test
 - [ ] delete tag on volume restore...
-- [ ] ...so that we can auto restore volumes when calling 'start'
-- [ ] data loss wawrning and generalise the 'yes' flag
+- [ ] ...so that we can auto restore volumes when calling 'start' - which will need to wait for the volumes to be ready
+- [ ] auto-restore on start, this is a good incremental point to check-in, even
+      if backup is only via 'debug' and comes later
+- [ ] data loss warning and generalise the 'yes' flag
 - [x] delete snapshot on successful restore
 - [ ] better logging for non-debug mode (warn user can take time)
-- [ ] propagate tags
-- [ ] error seems to be not setting the 'root device' (it is using the wrong vol)
-      to fix:
-      NOTE: it seems that the device name is probably what was wrong, maybe the
-      snapshot IDs got mixed up. add debugging and re-try.
-- [ ] option to wait for snapshot creation - could be an option for all commands
-- [ ] node-debug and re-rerun commands via 'debug' function, test end to end
-      using steambox (backup first)
-- [ ] return a sensible summary value for snapshot restore
 - [ ] new task list - docs, function, parameters, cost saving info, etc
-
+- [ ] calling 'detach/etc' fails if instance is not stopped or stopping as it doesn't try to stop the instance - must fail if state is not stopping or stopped
+- [ ] complete stop/start unit tests

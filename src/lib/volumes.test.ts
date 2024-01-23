@@ -19,6 +19,7 @@ import {
   recreateVolumesFromSnapshotTag,
   snapshotTagDeleteVolumes,
 } from "./volumes";
+import { tagNames } from "./constants";
 
 import describeVolumesTorrentBoxResponse from "../fixtures/volumes-describe-volumes-torrent-box.json";
 import createSnapshot1Response from "../fixtures/volumes-create-snapshot-volume1.json";
@@ -114,7 +115,7 @@ describe("volumes", () => {
         },
       ];
 
-      const tags = [{ key: "boxes.boxid", value: "torrentbox" }];
+      const tags = [{ key: tagNames.boxId, value: "torrentbox" }];
       const result = await snapshotTagDeleteVolumes(
         instanceId,
         detachableVolumes,
@@ -137,7 +138,7 @@ describe("volumes", () => {
             ResourceType: "snapshot",
             Tags: [
               {
-                Key: "boxes.boxid",
+                Key: tagNames.boxId,
                 Value: "torrentbox",
               },
             ],
@@ -151,7 +152,7 @@ describe("volumes", () => {
             ResourceType: "snapshot",
             Tags: [
               {
-                Key: "boxes.boxid",
+                Key: tagNames.boxId,
                 Value: "torrentbox",
               },
             ],
@@ -178,7 +179,7 @@ describe("volumes", () => {
         Resources: [instanceId],
         Tags: [
           {
-            Key: "boxes.volumesnapshots",
+            Key: tagNames.volumeArchives,
             Value:
               '[{"device":"/dev/xvda","snapshotId":"snap-03c3efc7e9254ab0a"},{"device":"/dev/xvdf","snapshotId":"snap-056afd3da4b3b003b"}]',
           },

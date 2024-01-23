@@ -15,6 +15,7 @@ import {
 import { getConfiguration } from "../configuration";
 import { TerminatingWarning } from "./errors";
 import * as aws from "./aws-helpers";
+import { tagNames } from "./constants";
 
 const debug = dbg("boxes:volumes");
 
@@ -159,7 +160,7 @@ export async function snapshotTagDeleteVolumes(
   //  we can later restore them. Note that there is no response for this call,
   //  it will just throw for errors.
   const snapshotDetailsTag = {
-    Key: "boxes.volumesnapshots",
+    Key: tagNames.volumeArchives,
     Value: aws.snapshotDetailsToTag(snapshots),
   };
   debug("creating snapshot details tag", snapshotDetailsTag);
@@ -216,7 +217,7 @@ export async function recreateVolumesFromSnapshotTag(
   const tags = aws.tagsAsObject(instance.Tags);
 
   //  If we don't have the required snapshots tag, we must fail.
-  const snapshotDetailsTag = tags["boxes.volumesnapshots"];
+  const snapshotDetailsTag = tags[tagNames.volumeArchives];
   if (!snapshotDetailsTag) {
     throw new TerminatingWarning(
       "unable to restore volume snapshots - required tags are missing",

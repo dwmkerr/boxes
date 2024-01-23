@@ -95,7 +95,7 @@
                             "Value": "dwmkerr"
                         },
                         {
-                            "Key": "boxes.volumesnapshots",
+                            "Key": "boxes.volumearchives",
                             "Value": "[{\"snapshotId\":\"snap-03c3efc7e9254ab0a\",\"device\":\"/dev/xvda\"},{\"snapshotId\":\"snap-056afd3da4b3b003b\",\"device\":\"/dev/xvdf\"}]"
                         },
                         {

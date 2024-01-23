@@ -3,6 +3,8 @@ import { EC2Client, DescribeInstancesCommand, Tag } from "@aws-sdk/client-ec2";
 import { Box, awsStateToBoxState } from "../box";
 import { TerminatingWarning } from "./errors";
 import { getConfiguration } from "../configuration";
+import { tagsAsObject } from "./aws-helpers";
+import { tagNames } from "./constants";
 const debug = dbg("boxes");
 
 export async function getBoxes(): Promise<Box[]> {
@@ -39,23 +41,18 @@ export async function getBoxes(): Promise<Box[]> {
     (i) => i?.State?.Name !== "terminated",
   );
 
-  const boxes = validInstances.map((i) => ({
-    boxId: getTagValOr(i?.Tags || [], "boxes.boxid", ""),
-    instanceId: i?.InstanceId,
-    name: nameFromTags(i?.Tags || []) || "",
-    state: awsStateToBoxState(i?.State?.Name),
-    instance: i,
-  }));
+  const boxes = validInstances.map((i): Box => {
+    const tags = tagsAsObject(i?.Tags);
+    return {
+      boxId: tags[tagNames.boxId],
+      instanceId: i?.InstanceId,
+      name: tags?.["Name"] || "<unknown>", //TODO better to just handle this in the CLI code not here
+      state: awsStateToBoxState(i?.State?.Name),
+      hasArchivedVolumes: tags.hasOwnProperty(tagNames.volumeArchives),
+      instance: i,
+    };
+  });
   debug(`found ${boxes.length} boxes`);
 
   return boxes;
 }
-
-const getTagValOr = (tags: Tag[], tagName: string, fallback: string) => {
-  return tags.reduce((acc, val) => {
-    return val.Key == tagName && val.Value !== undefined ? val.Value : acc;
-  }, fallback);
-};
-const nameFromTags = (tags: Tag[]): string => {
-  return getTagValOr(tags, "Name", "<unknown>");
-};

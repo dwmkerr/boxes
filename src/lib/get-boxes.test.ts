@@ -5,7 +5,8 @@ import { mockClient } from "aws-sdk-client-mock";
 import "aws-sdk-client-mock-jest";
 import { getBoxes } from "./get-boxes";
 
-import describeInstancesResponse from "../fixtures/aws-ec2-describe-instances.json";
+import describeInstancesResponse from "../fixtures/get-boxes-describe-instances.json";
+import describeInstancesWithArchivedVolumesResponse from "../fixtures/get-boxes-describe-instances-with-archived-volumes.json";
 import { BoxState } from "../box";
 
 describe("get-boxes", () => {
@@ -56,6 +57,33 @@ describe("get-boxes", () => {
       instanceId: "i-08fec1692931e31e7",
       name: "Torrent Box",
       state: BoxState.Stopped,
+      // we don't care too much about the 'instance' object..
+    });
+  });
+
+  test("can correctly identify if a box has archived volumes", async () => {
+    //  Record fixture with:
+    //  aws ec2 describe-instances --filters "Name=tag:boxes.boxid,Values=*" > ./src/fixtures/get-boxes-describe-instances-with-archived-volumes.json
+    const ec2Mock = mockClient(EC2Client)
+      .on(DescribeInstancesCommand)
+      .resolves(describeInstancesWithArchivedVolumesResponse);
+
+    const boxes = await getBoxes();
+
+    expect(ec2Mock).toHaveReceivedCommand(DescribeInstancesCommand);
+    expect(boxes[0]).toMatchObject({
+      boxId: "torrentbox",
+      instanceId: "i-08fec1692931e31e7",
+      name: "Torrent Box",
+      state: BoxState.Stopped,
+      // we don't care too much about the 'instance' object..
+    });
+    expect(boxes[1]).toMatchObject({
+      boxId: "steambox",
+      instanceId: "i-043a3c1ce6c9ea6ad",
+      name: "Steam Box",
+      state: BoxState.Stopped,
+      hasArchivedVolumes: true,
       // we don't care too much about the 'instance' object..
     });
   });
