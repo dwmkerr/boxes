@@ -42,6 +42,9 @@ program
         theme.printBoxDetail("DNS", box.instance.PublicDnsName);
         theme.printBoxDetail("IP", box.instance.PublicIpAddress);
       }
+      if (box.hasArchivedVolumes) {
+        theme.printBoxDetail("Archived Volumes", "true");
+      }
     });
   });
 
