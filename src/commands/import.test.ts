@@ -45,7 +45,7 @@ describe("import", () => {
       await importBox({
         instanceId: "i-ffff71b1f0f0668af",
         boxId: "ubuntubox",
-        override: false,
+        overwrite: false,
       });
       fail("expected 'import' to fail with 'instance id not found'");
     } catch (err) {
@@ -58,7 +58,7 @@ describe("import", () => {
     await importBox({
       instanceId,
       boxId: "ubuntubox",
-      override: false,
+      overwrite: false,
     });
 
     expect(ec2Mock).toHaveReceivedCommand(DescribeInstancesCommand);
@@ -85,7 +85,7 @@ describe("import", () => {
 
   //   await import({
   //     instanceId: "steambox",
-  //     override: true,
+  //     overwrite: true,
   //   });
 
   //   expect(ec2Mock).toHaveReceivedCommand(DescribeInstancesCommand);
@@ -112,7 +112,7 @@ describe("import", () => {
       await importBox({
         instanceId: "i-ffff71b1f0f0668af",
         boxId: "ubuntubox",
-        override: false,
+        overwrite: false,
       });
       fail("expected 'import' to fail with 'not found'");
     } catch (err) {
@@ -124,20 +124,20 @@ describe("import", () => {
     expect(ec2Mock).toHaveReceivedCommand(DescribeInstancesCommand);
   });
 
-  test("throws when the instance id is already tagged and 'override' is not specified", async () => {
+  test("throws when the instance id is already tagged and 'overwrite' is not specified", async () => {
     //  Record fixtures with:
     //  AWS_PROFILE=dwmkerr aws ec1 describe-instances | tee ./src/fixtures/import-describe-instances.json
     const ec2Mock = mockClient(EC2Client)
       .on(DescribeInstancesCommand)
       .resolves(describeInstancesResponse);
 
-    //  Let's try and import a box that already exists, without override, then
+    //  Let's try and import a box that already exists, without overwrite, then
     //  assert the warning.
     try {
       await importBox({
         instanceId: "i-043a3c1ce6c9ea6ad", // steambox
         boxId: "ubuntubox",
-        override: false,
+        overwrite: false,
       });
       fail("expected 'import' to fail with 'already tagged'");
     } catch (err) {

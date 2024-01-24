@@ -224,7 +224,7 @@ Imports an AWS instance and tags as a box, also tags its attached volumes.
 
 Options:
 
-- `--override`: override tags on existing instances/volumes
+- `--overwrite`: overwrite tags on existing instances/volumes
 
 ## Configuration
 
@@ -373,9 +373,8 @@ Quick and dirty task-list.
 
 - [x] feat: 'import' option to tag a box and associated volumes
 - [ ] refactor: check use of 'interface' which should be 'type'
-- [ ] testing: recreate steam box with cost allocation tag enabled (current cost  0.53 USD)
+- [ ] testing: check ubox cost allocation tags for volumes
 - [ ] feat: boxes aws-console opens link eg (https://us-west-2.console.aws.amazon.com/ec2/home?region=us-west-2#InstanceDetails:instanceId=i-043a3c1ce6c9ea6ad)
-- [ ] bug: EBS devices not tagged -I've tagged two (manually) in jan - check w/ feb bill
 
 ### Beta
 

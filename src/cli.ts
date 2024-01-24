@@ -195,12 +195,12 @@ program
   .description("Import an AWS instance and volumes and tag as a Box")
   .argument("<instanceId>", "the aws instance id")
   .argument("<boxId>", "the box id to tag the instance with")
-  .option("-o, --override", "override existing box tags", false)
+  .option("-o, --overwrite", "overwrite existing box tags", false)
   .action(async (instanceId, boxId, options) => {
     await importBox({
       boxId,
       instanceId,
-      override: options.override,
+      overwrite: options.overwrite,
     });
     console.log(
       `  ${theme.boxId(boxId)} (${instanceId}): imported successfully`,

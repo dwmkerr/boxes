@@ -14,11 +14,11 @@ const debug = dbg("boxes:import");
 type ImportOptions = {
   instanceId: string;
   boxId: string;
-  override: boolean;
+  overwrite: boolean;
 };
 
 export async function importBox(options: ImportOptions): Promise<void> {
-  const { instanceId, boxId, override } = options;
+  const { instanceId, boxId, overwrite } = options;
 
   //  Create an EC2 client.
   const { aws: awsConfig } = await getConfiguration();
@@ -44,9 +44,9 @@ export async function importBox(options: ImportOptions): Promise<void> {
   }
 
   //  If this instance already has a box id, but we have not chosen to
-  //  override it, then fail.
+  //  overwrite it, then fail.
   const tags = tagsAsObject(instance?.Tags);
-  if (tags.hasOwnProperty(tagNames.boxId) && !override) {
+  if (tags.hasOwnProperty(tagNames.boxId) && !overwrite) {
     throw new TerminatingWarning(
       `Instance '${instanceId}' is already tagged with box id '${
         tags[tagNames.boxId]
