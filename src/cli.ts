@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
+import dbg from "debug";
 import { Command } from "commander";
 import { list, info } from "./commands";
+import { debug } from "./commands/debug";
 import { start } from "./commands/start";
 import { stop } from "./commands/stop";
 import { ssh } from "./commands/ssh";
@@ -12,6 +14,10 @@ import theme from "./theme";
 import { TerminatingWarning } from "./lib/errors";
 import packageJson from "../package.json";
 import { BoxState } from "./box";
+import { assertConfirmation } from "./lib/cli-helpers";
+
+//  While we're developing, debug output is always enabled.
+dbg.enable("boxes*");
 
 const ERROR_CODE_WARNING = 1;
 const ERROR_CODE_CONNECTION = 2;
@@ -30,11 +36,14 @@ program
     const boxes = await list();
     boxes.forEach((box) => {
       theme.printBoxHeading(box.boxId, box.state);
-      theme.printBoxDetail("Name", box.name);
+      theme.printBoxDetail("Name", box.name || "<unknown>");
       //  Only show DNS details if they exist (i.e. if the box is running).
       if (box.instance?.PublicDnsName && box.instance?.PublicIpAddress) {
         theme.printBoxDetail("DNS", box.instance.PublicDnsName);
         theme.printBoxDetail("IP", box.instance.PublicIpAddress);
+      }
+      if (box.hasArchivedVolumes) {
+        theme.printBoxDetail("Archived Volumes", "true");
       }
     });
   });
@@ -75,8 +84,12 @@ program
   .command("start")
   .description("Start a box")
   .argument("<boxId>", 'id of the box, e.g: "steambox"')
-  .action(async (boxId) => {
-    const { instanceId, currentState, previousState } = await start(boxId);
+  .option("-w, --wait", "wait for box to complete startup", false)
+  .action(async (boxId, options) => {
+    const { instanceId, currentState, previousState } = await start({
+      boxId,
+      wait: options.wait,
+    });
     console.log(
       `  ${theme.boxId(boxId)} (${instanceId}): ${theme.state(
         previousState,
@@ -88,12 +101,12 @@ program
   .command("stop")
   .description("Stop a box")
   .argument("<boxId>", 'id of the box, e.g: "steambox"')
-  .option("--detach-volumes", "detach EBS volumes (experimental)", false)
+  .option("-w, --wait", "wait for box to complete startup", false)
   .action(async (boxId, options) => {
-    const { instanceId, currentState, previousState } = await stop(
+    const { instanceId, currentState, previousState } = await stop({
       boxId,
-      options.detachVolumes,
-    );
+      wait: options.wait,
+    });
     console.log(
       `  ${theme.boxId(boxId)} (${instanceId}): ${theme.state(
         previousState,
@@ -108,6 +121,14 @@ program
   .option("-y, --year <year>", "month of year", undefined)
   .option("-m, --month <month>", "month of year", undefined)
   .action(async (options) => {
+    //  Demand confirmation.
+    await assertConfirmation(
+      options,
+      "yes",
+      `The AWS cost explorer charges $0.01 per call.
+To accept charges, re-run with the '--yes' parameter.`,
+    );
+
     const boxes = await list();
     const costs = await getCosts({
       yes: options.yes,
@@ -144,6 +165,16 @@ program
   .action(async () => {
     const configuration = await config();
     console.log(JSON.stringify(configuration, null, 2));
+  });
+
+program
+  .command("debug")
+  .description("Additional commands used for debugging")
+  .argument("<command>", 'debug command to use, e.g. "test-detach"')
+  .argument("<parameters...>", 'parameters for the command, e.g. "one two"')
+  .action(async (command, parameters) => {
+    const result = await debug(command, parameters);
+    console.log(JSON.stringify(result));
   });
 
 async function run() {

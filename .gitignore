@@ -1,7 +1,10 @@
-node_modules
-jspm_packages
-package-lock.json
-boxes.json
-artifacts/
 .DS_Store
+artifacts/
 build/
+node_modules/
+jspm_packages/
+package-lock.json
+
+# Ignore any local boxes config - but track the test fixture version.
+boxes.json
+!src/fixtures/boxes.json

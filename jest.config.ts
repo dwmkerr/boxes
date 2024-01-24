@@ -1,4 +1,5 @@
 import type { Config } from "jest";
+
 /*
  * For a detailed explanation regarding each configuration property, visit:
  * https://jestjs.io/docs/configuration
@@ -28,8 +29,8 @@ const config: Config = {
   //  Only look for tests in the src folder, i.e. excluded build.
   roots: ["./src/"],
 
-  //  Initial config/setup function for jest
-  globalSetup: "./src/jest-global-setup.ts",
+  //  Jest setup function.
+  setupFilesAfterEnv: ["./src/jest.setup.ts"],
 
   // Automatically clear mock calls, instances, contexts and results before every test
   clearMocks: true,

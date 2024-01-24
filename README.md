@@ -1,11 +1,3 @@
-# todo
-
-test ssh, new torrent script with logging, keep existing script for testing
-detach this eve
-region in config
-
-test a burner box for michelle's book
-
 # boxes
 
 [![main](https://github.com/dwmkerr/boxes/actions/workflows/main.yml/badge.svg)](https://github.com/dwmkerr/boxes/actions/workflows/main.yml) ![npm (scoped)](https://img.shields.io/npm/v/%40dwmkerr/boxes) [![codecov](https://codecov.io/gh/dwmkerr/boxes/graph/badge.svg?token=uGVpjGFbDf)](https://codecov.io/gh/dwmkerr/boxes)
@@ -63,6 +55,10 @@ $ boxes start steambox
   steambox (i-098e8d30d5e399b03): stopped -> pending
 ```
 
+Options:
+
+- `--wait`: wait for instance to complete startup
+
 ### `boxes stop`
 
 Run `boxes start <id>` to stop a box:
@@ -71,6 +67,10 @@ Run `boxes start <id>` to stop a box:
 $ boxes stop steambox
   steambox (i-098e8d30d5e399b03): running -> stopping
 ```
+
+Options:
+
+- `--wait`: wait for instance to complete shutdown
 
 ### `boxes info`
 
@@ -287,7 +287,15 @@ If you are developing and would like to run the `boxes` command without relinkin
 npm run build:watch
 ```
 
-This will keep the `./build` folder up-to-date and the `boxes` command will use the latest compiled code.
+This will keep the `./build` folder up-to-date and the `boxes` command will use the latest compiled code. This will *sometimes* work but it might miss certain changes, so `relink` is the safer option. `build:watch` works well if you are making small changes to existing files, but not if you are adding new files (it seems).
+
+### Debugging
+
+The [`debug`](https://github.com/debug-js/debug) library is used to make it easy to provide debug level output. Debug logging to the console can be enabled with:
+
+```bash
+DEBUG='boxes*' boxes list
+```
 
 ### Error Handling
 
@@ -341,7 +349,7 @@ Typically occurs if AWS SDK packages are not at the exact same number as the `@a
 
 Quick and dirty task-list.
 
-## Alpha
+### Alpha
 
 - [x] feat: document copy password in connect, maybe better default off
 - [ ] refactor: suck it up and use TS
@@ -362,10 +370,13 @@ Quick and dirty task-list.
 - [ ] feat: boxes aws-console opens link eg (https://us-west-2.console.aws.amazon.com/ec2/home?region=us-west-2#InstanceDetails:instanceId=i-043a3c1ce6c9ea6ad)
 - [ ] bug: EBS devices not tagged -I've tagged two (manually) in jan - check w/ feb bill
 
-## Beta
+### Beta
 
-## Later
+- [ ] 'wait' flag for start/stop to wait until operation complete - default to 1hr and document the timeout info
 
+### Later
+
+- [ ] refactor: make 'debug' command local/debug build only?
 - [ ] feat: 'import' command to take an instance ID and create local box config for it and tag the instance
 - [ ] docs: cost allocation tags blog post
 - [ ] docs: create and share blogpost
@@ -374,3 +385,28 @@ Quick and dirty task-list.
 - [ ] feat: autocomplete
 - [ ] feat: aws profile in config file
 - [ ] epic: 'boxes create' to create from a template
+- [ ] refactor: find a better way to mock / inject config (rather than importing arbitrarily)
+
+### Epic - Interactive Setup
+
+Run `boxes init` - lets you choose a region, select instances, give a name.
+Will add the tags - but will also add the tags to the volumes and will notify if the cost explorer tag is not setup.
+Creates the local config.
+
+This would be demo-able.
+
+### Epic - Volume Management
+
+- [x] test '-wait' on start/stop and doc
+- [ ] 'start' can now check for 'has archived volumes' and restore if available, this is the next big one
+- [ ] propagate tags w/test
+- [ ] delete tag on volume restore...
+- [ ] ...so that we can auto restore volumes when calling 'start' - which will need to wait for the volumes to be ready
+- [ ] auto-restore on start, this is a good incremental point to check-in, even
+      if backup is only via 'debug' and comes later
+- [ ] data loss warning and generalise the 'yes' flag
+- [x] delete snapshot on successful restore
+- [ ] better logging for non-debug mode (warn user can take time)
+- [ ] new task list - docs, function, parameters, cost saving info, etc
+- [ ] calling 'detach/etc' fails if instance is not stopped or stopping as it doesn't try to stop the instance - must fail if state is not stopping or stopped
+- [ ] complete stop/start unit tests

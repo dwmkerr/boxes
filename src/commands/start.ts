@@ -1,8 +1,12 @@
+import dbg from "debug";
 import { EC2Client, StartInstancesCommand } from "@aws-sdk/client-ec2";
 import { TerminatingWarning } from "../lib/errors";
 import { getBoxes } from "../lib/get-boxes";
 import { BoxState, awsStateToBoxState } from "../box";
 import { getConfiguration } from "../configuration";
+import { waitForInstanceState } from "../lib/aws-helpers";
+
+const debug = dbg("boxes:start");
 
 export interface BoxTransition {
   boxId: string;
@@ -11,7 +15,14 @@ export interface BoxTransition {
   previousState: BoxState;
 }
 
-export async function start(boxId: string): Promise<BoxTransition> {
+export interface StartOptions {
+  boxId: string;
+  wait: boolean;
+}
+
+export async function start(options: StartOptions): Promise<BoxTransition> {
+  const { boxId, wait } = options;
+
   //  Get the box, fail with a warning if it is not found.
   const boxes = await getBoxes();
   const box = boxes.find((b) => b.boxId === boxId);
@@ -32,19 +43,30 @@ export async function start(boxId: string): Promise<BoxTransition> {
 
   //  Send the 'stop instances' command. Find the status of the stopping
   //  instance in the respose.
+  debug(`preparing to start instance ${box.instanceId}...`);
   const response = await client.send(
     new StartInstancesCommand({
       InstanceIds: [box.instanceId],
     }),
   );
-  const stoppingInstance = response.StartingInstances?.find(
+  debug(`...complete, ${response.StartingInstances?.length} instances started`);
+  const startingInstances = response.StartingInstances?.find(
     (si) => si.InstanceId === box.instanceId,
   );
+
+  //  If the wait flag has been specified, wait for the instance to enter
+  //  the 'started' state.
+  if (wait) {
+    console.log(
+      `  waiting for ${boxId} to startup - this may take some time...`,
+    );
+    waitForInstanceState(client, box.instanceId, "running");
+  }
 
   return {
     boxId,
     instanceId: box.instanceId,
-    currentState: awsStateToBoxState(stoppingInstance?.CurrentState?.Name),
-    previousState: awsStateToBoxState(stoppingInstance?.PreviousState?.Name),
+    currentState: awsStateToBoxState(startingInstances?.CurrentState?.Name),
+    previousState: awsStateToBoxState(startingInstances?.PreviousState?.Name),
   };
 }
