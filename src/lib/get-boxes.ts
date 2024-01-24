@@ -11,7 +11,7 @@ export async function getBoxes(): Promise<Box[]> {
   const { aws: awsConfig } = await getConfiguration();
   const client = new EC2Client(awsConfig);
 
-  debug("preparing to describe instances...");
+  debug(`preparing to describe instances with '${tagNames.boxId}' tags...`);
   const instancesResponse = await client.send(
     new DescribeInstancesCommand({
       // TODO typescript this seems to not be found...

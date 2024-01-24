@@ -16,6 +16,7 @@ import packageJson from "../package.json";
 import { BoxState } from "./box";
 import { assertConfirmation } from "./lib/cli-helpers";
 import { getConfiguration } from "./configuration";
+import { importBox } from "./commands/import";
 
 const ERROR_CODE_WARNING = 1;
 const ERROR_CODE_CONNECTION = 2;
@@ -187,6 +188,23 @@ program
   .action(async (command, parameters) => {
     const result = await debug(command, parameters);
     console.log(JSON.stringify(result));
+  });
+
+program
+  .command("import")
+  .description("Import an AWS instance and volumes and tag as a Box")
+  .argument("<instanceId>", "the aws instance id")
+  .argument("<boxId>", "the box id to tag the instance with")
+  .option("-o, --overwrite", "overwrite existing box tags", false)
+  .action(async (instanceId, boxId, options) => {
+    await importBox({
+      boxId,
+      instanceId,
+      overwrite: options.overwrite,
+    });
+    console.log(
+      `  ${theme.boxId(boxId)} (${instanceId}): imported successfully`,
+    );
   });
 
 async function run() {

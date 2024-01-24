@@ -53,7 +53,7 @@ export async function waitForVolumeReady(
   client: EC2Client,
   volumeId: string,
   intervalMs: number = 5 * 1000,
-  timeoutMs: number = 60 * 1000,
+  timeoutMs: number = 60 * 60 * 1000,
 ) {
   //  When running unit tests in Jest we can return immediately as
   //  all service calls are mocked to correct values. This function
@@ -119,7 +119,7 @@ export async function waitForInstanceState(
   instanceId: string,
   targetState: EC2InstanceState,
   intervalMs: number = 5 * 1000,
-  timeoutMs: number = 60 * 1000,
+  timeoutMs: number = 5 * 60 * 1000,
 ) {
   //  When running unit tests in Jest we can return immediately as
   //  all service calls are mocked to correct values. This function
