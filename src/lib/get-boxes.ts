@@ -18,7 +18,7 @@ export async function getBoxes(): Promise<Box[]> {
       // IncludeAllInstances: true,
       Filters: [
         {
-          Name: tagNames.boxId,
+          Name: `tag:${tagNames.boxId}`,
           Values: ["*"],
         },
       ],

@@ -8,6 +8,7 @@ import { getBoxes } from "./get-boxes";
 import describeInstancesResponse from "../fixtures/get-boxes-describe-instances.json";
 import describeInstancesWithArchivedVolumesResponse from "../fixtures/get-boxes-describe-instances-with-archived-volumes.json";
 import { BoxState } from "../box";
+import { tagNames } from "./constants";
 
 describe("get-boxes", () => {
   //  Mock the config file.
@@ -32,7 +33,14 @@ describe("get-boxes", () => {
 
     const boxes = await getBoxes();
 
-    expect(ec2Mock).toHaveReceivedCommand(DescribeInstancesCommand);
+    expect(ec2Mock).toHaveReceivedCommandWith(DescribeInstancesCommand, {
+      Filters: [
+        {
+          Name: `tag:${tagNames.boxId}`,
+          Values: ["*"],
+        },
+      ],
+    });
     expect(boxes[0]).toMatchObject({
       boxId: "torrentbox",
       instanceId: "i-08fec1692931e31e7",
