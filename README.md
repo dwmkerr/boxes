@@ -58,9 +58,9 @@ $ boxes start steambox
 Options:
 
 - `--wait`: wait for instance to complete startup
-- `--archive-volumes`: [experimental] detach, snapshot and delete instance volumes
+- `--yes`: [experimental] confirm restoration of archived volumes
 
-Note that the `--archive-volumes` option is experimental and may cause data loss.
+Note that the restoration of archived volumes option is experimental and may cause data loss.
 
 ### `boxes stop`
 
@@ -74,6 +74,9 @@ $ boxes stop steambox
 Options:
 
 - `--wait`: wait for instance to complete shutdown
+- `--archive-volumes`: [experimental] detach, snapshot and delete instance volumes
+
+Note that the `--archive-volumes` option is experimental and may cause data loss.
 
 ### `boxes info`
 
@@ -354,11 +357,11 @@ Quick and dirty task-list.
 
 ### Alpha
 
-- [ ] bug: stat/stop show 'pending' rather than 'stopped' due to order of logging
+- [ ] feat: 'import' option to tag a box and update local config
+- [x] bug: stat/stop show 'pending' rather than 'stopped' due to order of logging
 - [x] feat: document copy password in connect, maybe better default off
-- [ ] refactor: suck it up and use TS
-- [ ] feat: read AWS region from config file, using node-configuration
-- [ ] feat: save EBS costs by snapshot/detach/delete/replace (optional) - would save me $40 per month :) (see https://repost.aws/knowledge-center/ebs-charge-stopped-instance https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-restoring-volume.html https://cloudfix.com/blog/reduce-aws-costs-deleting-unnecessary-ebs-volumes/)
+- [x] refactor: suck it up and use TS
+- [x] feat: read AWS region from config file, using node-configuration
 - [x] npm badge download link
 - [x] bug: package.json path
 - [x] build / lint / test / deploy pipeline
@@ -403,15 +406,16 @@ This would be demo-able.
 ### Epic - Volume Management
 
 - [x] test '-wait' on start/stop and doc
-- [ ] propagate tags w/test
-- [ ] 'start' can now check for 'has archived volumes' and restore if available, this is the next big one
-- [ ] delete tag on volume restore...
-- [ ] ...so that we can auto restore volumes when calling 'start' - which will need to wait for the volumes to be ready
-- [ ] auto-restore on start, this is a good incremental point to check-in, even
+- [x] propagate tags w/test
+- [x] 'start' can now check for 'has archived volumes' and restore if available, this is the next big one
+- [x] delete tag on volume restore...
+- [x] ...so that we can auto restore volumes when calling 'start' - which will need to wait for the volumes to be ready
+- [x] auto-restore on start, this is a good incremental point to check-in, even
       if backup is only via 'debug' and comes later
-- [ ] data loss warning and generalise the 'yes' flag
+- [x] rename functions to 'archive' and 'restore' syntax
+- [x] data loss warning and generalise the 'yes' flag
 - [x] delete snapshot on successful restore
-- [ ] better logging for non-debug mode (warn user can take time)
-- [ ] new task list - docs, function, parameters, cost saving info, etc
+- [x] better logging for non-debug mode (warn user can take time)
 - [ ] calling 'detach/etc' fails if instance is not stopped or stopping as it doesn't try to stop the instance - must fail if state is not stopping or stopped
-- [ ] complete stop/start unit tests
+- [ ] new task list - docs, function, parameters, cost saving info, etc
+- [x] complete stop/start unit tests

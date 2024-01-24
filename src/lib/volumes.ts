@@ -12,6 +12,7 @@ import {
   AttachVolumeCommand,
   DeleteSnapshotCommand,
   Tag,
+  DeleteTagsCommand,
 } from "@aws-sdk/client-ec2";
 import { getConfiguration } from "../configuration";
 import { TerminatingWarning } from "./errors";
@@ -87,7 +88,7 @@ export async function getDetachableVolumes(
   return detachableVolumes;
 }
 
-export async function snapshotTagDeleteVolumes(
+export async function archiveVolumes(
   instanceId: string,
   volumes: DetachableVolume[],
   tags: Tag[],
@@ -180,7 +181,7 @@ export async function snapshotTagDeleteVolumes(
   return snapshots;
 }
 
-export async function recreateVolumesFromSnapshotTag(
+export async function restoreArchivedVolumes(
   instanceId: string,
 ): Promise<RecreatedVolume[]> {
   //  Create an EC2 client.
@@ -198,18 +199,24 @@ export async function recreateVolumesFromSnapshotTag(
   const instance = result?.Reservations?.[0].Instances?.[0];
   if (!instance) {
     throw new TerminatingWarning(
-      `Cannot restore volumes - unable to get instance details for instance '${instanceId}'`,
+      `Cannot restore volumes - unable to get instance details for '${instanceId}'`,
     );
   }
   const availabilityZone = instance?.Placement?.AvailabilityZone;
   if (!availabilityZone) {
     throw new TerminatingWarning(
-      `Cannot restore volumes - unable to find availability zone for instance instance '${instanceId}'`,
+      `Cannot restore volumes - unable to find availability zone for '${instanceId}'`,
     );
   }
 
-  //  Get the tags.
+  //  Get the tags. Fail if we don't have a boxId.
   const tags = aws.tagsAsObject(instance.Tags);
+  const boxId = tags[tagNames.boxId];
+  if (!boxId) {
+    throw new TerminatingWarning(
+      `Cannot restore volumes - unable to find box id for '${instanceId}'`,
+    );
+  }
 
   //  If we don't have the required snapshots tag, we must fail.
   const snapshotDetailsTag = tags[tagNames.volumeArchives];
@@ -236,6 +243,17 @@ export async function recreateVolumesFromSnapshotTag(
           new CreateVolumeCommand({
             SnapshotId: snapshotId,
             AvailabilityZone: availabilityZone,
+            TagSpecifications: [
+              {
+                ResourceType: "volume",
+                Tags: [
+                  {
+                    Key: tagNames.boxId,
+                    Value: boxId,
+                  },
+                ],
+              },
+            ],
           }),
         );
         if (!volumeId) {
@@ -279,6 +297,16 @@ export async function recreateVolumesFromSnapshotTag(
         };
       },
     ),
+  );
+
+  //  Now that we have successfully recreated the volumes, delete the volume
+  //  archives tag.
+  debug(`deleting '${tagNames.volumeArchives}' tag from ${instanceId}...`);
+  await client.send(
+    new DeleteTagsCommand({
+      Resources: [instanceId],
+      Tags: [{ Key: tagNames.volumeArchives }],
+    }),
   );
 
   debug(`successfully recreated ${recreatedVolumes.length} volumes`);
