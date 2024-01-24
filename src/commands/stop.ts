@@ -6,7 +6,7 @@ import { BoxState, awsStateToBoxState } from "../box";
 import { getConfiguration } from "../configuration";
 import { BoxTransition } from "./start";
 import { waitForInstanceState } from "../lib/aws-helpers";
-import { getDetachableVolumes, snapshotTagDeleteVolumes } from "../lib/volumes";
+import { getDetachableVolumes, archiveVolumes } from "../lib/volumes";
 import { tagNames } from "../lib/constants";
 
 const debug = dbg("boxes:stop");
@@ -18,7 +18,7 @@ export interface StopOptions {
 }
 
 export async function stop(options: StopOptions): Promise<BoxTransition> {
-  const { boxId, wait, archiveVolumes } = options;
+  const { boxId, wait, archiveVolumes: enableArchive } = options;
 
   //  Get the box, fail with a warning if it is not found.
   const boxes = await getBoxes();
@@ -57,7 +57,7 @@ export async function stop(options: StopOptions): Promise<BoxTransition> {
 
   //  If the wait flag has been specified, wait for the instance to enter
   //  the 'started' state. We also must wait if we are archiving.
-  if (wait || archiveVolumes) {
+  if (wait || enableArchive) {
     console.log(
       `  waiting for ${boxId} to shutdown - this may take some time...`,
     );
@@ -68,12 +68,12 @@ export async function stop(options: StopOptions): Promise<BoxTransition> {
   //  If we are archiving the volumes, do so now before we try and stop the box.
   //  Make sure to tag the snapshots with the box id so that we track its costs
   //  and can restore the tag to the volume later.
-  if (archiveVolumes) {
+  if (enableArchive) {
     const volumes = await getDetachableVolumes(box.instanceId);
     console.log(
       `  archiving ${volumes.length} volume(s), this may take some time...`,
     );
-    await snapshotTagDeleteVolumes(box.instanceId, volumes, [
+    await archiveVolumes(box.instanceId, volumes, [
       {
         Key: tagNames.boxId,
         Value: boxId,

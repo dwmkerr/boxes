@@ -9,6 +9,7 @@ import {
   DescribeInstancesCommand,
   AttachVolumeCommand,
   DeleteSnapshotCommand,
+  DeleteTagsCommand,
 } from "@aws-sdk/client-ec2";
 import { mockClient } from "aws-sdk-client-mock";
 import "aws-sdk-client-mock-jest";
@@ -16,8 +17,8 @@ import mock from "mock-fs";
 import {
   DetachableVolume,
   getDetachableVolumes,
-  recreateVolumesFromSnapshotTag,
-  snapshotTagDeleteVolumes,
+  restoreArchivedVolumes,
+  archiveVolumes,
 } from "./volumes";
 import { tagNames } from "./constants";
 
@@ -30,6 +31,7 @@ import createVolume1Response from "../fixtures/volumes-create-volume1.json";
 import createVolume2Response from "../fixtures/volumes-create-volume2.json";
 import attachVolume1Response from "../fixtures/volumes-attach-volume1.json";
 import attachVolume2Response from "../fixtures/volumes-attach-volume2.json";
+import { TerminatingWarning } from "./errors";
 
 describe("volumes", () => {
   //  Mock the config file.
@@ -81,7 +83,7 @@ describe("volumes", () => {
     });
   });
 
-  describe("snapshot-and-delete-volumes", () => {
+  describe("archiveVolumes", () => {
     test("can snapshot with tags and delete volumes", async () => {
       //  Note: to record the fixtures and update this test process, check the
       //  ./fixtures/volumes-test-script.md file for the AWS commands to use.
@@ -116,11 +118,7 @@ describe("volumes", () => {
       ];
 
       const tags = [{ Key: tagNames.boxId, Value: "torrentbox" }];
-      const result = await snapshotTagDeleteVolumes(
-        instanceId,
-        detachableVolumes,
-        tags,
-      );
+      const result = await archiveVolumes(instanceId, detachableVolumes, tags);
 
       //  Assert we have detached the two volumes.
       expect(ec2Mock).toHaveReceivedCommandWith(DetachVolumeCommand, {
@@ -188,7 +186,7 @@ describe("volumes", () => {
     });
   });
 
-  describe("recreateVolumesFromSnapshotTag", () => {
+  describe("restoreArchivedVolumes", () => {
     test("throws a TerminatingWarning if the required tags are not present", async () => {
       const instanceId = "i-08fec1692931e31e7"; // fixture 'torrentbox' id
       const ec2Mock = mockClient(EC2Client)
@@ -198,12 +196,16 @@ describe("volumes", () => {
       //  Recreate the volumes from the snapshot tag. This response is missing
       //  the required tag so should throw. Jest doesn't let us check the
       //  message/type of error particularly well so it's a bit janky here.
-      await expect(
-        recreateVolumesFromSnapshotTag(instanceId),
-      ).rejects.toMatchObject({
-        message:
+      try {
+        await restoreArchivedVolumes(instanceId);
+        fail("recreate volumes did not throw");
+      } catch (err) {
+        const error = err as TerminatingWarning;
+        expect(error).toBeInstanceOf(TerminatingWarning);
+        expect(error.message).toMatch(
           "unable to restore volume snapshots - required tags are missing",
-      });
+        );
+      }
 
       //  Expect the call to the mock.
       expect(ec2Mock).toHaveReceivedCommandWith(DescribeInstancesCommand, {
@@ -240,7 +242,7 @@ describe("volumes", () => {
         .resolves(attachVolume2Response);
 
       //  Recreate the volumes from the snapshot tag.
-      const recreatedVolumes = await recreateVolumesFromSnapshotTag(instanceId);
+      const recreatedVolumes = await restoreArchivedVolumes(instanceId);
 
       expect(recreatedVolumes).toEqual([
         {
@@ -265,10 +267,32 @@ describe("volumes", () => {
       expect(ec2Mock).toHaveReceivedCommandWith(CreateVolumeCommand, {
         SnapshotId: snapshotId1,
         AvailabilityZone: "us-west-2a", // the az of our fixture instance
+        TagSpecifications: [
+          {
+            ResourceType: "volume",
+            Tags: [
+              {
+                Key: tagNames.boxId,
+                Value: "torrentbox",
+              },
+            ],
+          },
+        ],
       });
       expect(ec2Mock).toHaveReceivedCommandWith(CreateVolumeCommand, {
         SnapshotId: snapshotId2,
         AvailabilityZone: "us-west-2a", // the az of our fixture instance
+        TagSpecifications: [
+          {
+            ResourceType: "volume",
+            Tags: [
+              {
+                Key: tagNames.boxId,
+                Value: "torrentbox",
+              },
+            ],
+          },
+        ],
       });
 
       //  Now the newly created volumes should be attached.
@@ -279,12 +303,22 @@ describe("volumes", () => {
         Device: device2,
       });
 
-      //  Finally, the two snapshots should have been deleted.
+      //  The two snapshots should have been deleted.
       expect(ec2Mock).toHaveReceivedCommandWith(DeleteSnapshotCommand, {
         SnapshotId: snapshotId1,
       });
       expect(ec2Mock).toHaveReceivedCommandWith(DeleteSnapshotCommand, {
         SnapshotId: snapshotId2,
+      });
+
+      //  The 'archived volumes' tag on the instance should have been removed.
+      expect(ec2Mock).toHaveReceivedCommandWith(DeleteTagsCommand, {
+        Resources: [instanceId],
+        Tags: [
+          {
+            Key: tagNames.volumeArchives,
+          },
+        ],
       });
     });
   });

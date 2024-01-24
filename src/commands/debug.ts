@@ -1,8 +1,8 @@
 import { TerminatingWarning } from "../lib/errors";
 import {
   getDetachableVolumes,
-  recreateVolumesFromSnapshotTag,
-  snapshotTagDeleteVolumes,
+  restoreArchivedVolumes,
+  archiveVolumes,
 } from "../lib/volumes";
 
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
@@ -36,11 +36,7 @@ export async function debug(command: string, parameters: string[]) {
     const detachableVolumes = await getDetachableVolumes(instanceId);
     logJson(detachableVolumes);
     console.log("Snapshotting / tagging...");
-    const result = await snapshotTagDeleteVolumes(
-      instanceId,
-      detachableVolumes,
-      tags,
-    );
+    const result = await archiveVolumes(instanceId, detachableVolumes, tags);
     logJson(result);
 
     return result;
@@ -51,7 +47,7 @@ export async function debug(command: string, parameters: string[]) {
       console.error("instanceid is required as the first parameter");
       return;
     }
-    const result = await recreateVolumesFromSnapshotTag(instanceId);
+    const result = await restoreArchivedVolumes(instanceId);
     console.log(result);
   } else {
     throw new TerminatingWarning(`unknown debug command ${command}`);

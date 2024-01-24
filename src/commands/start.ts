@@ -5,6 +5,7 @@ import { getBoxes } from "../lib/get-boxes";
 import { BoxState, awsStateToBoxState } from "../box";
 import { getConfiguration } from "../configuration";
 import { waitForInstanceState } from "../lib/aws-helpers";
+import { restoreArchivedVolumes } from "../lib/volumes";
 
 const debug = dbg("boxes:start");
 
@@ -18,10 +19,11 @@ export interface BoxTransition {
 export interface StartOptions {
   boxId: string;
   wait: boolean;
+  restoreArchivedVolumes: boolean;
 }
 
 export async function start(options: StartOptions): Promise<BoxTransition> {
-  const { boxId, wait } = options;
+  const { boxId, wait, restoreArchivedVolumes: enableRestore } = options;
 
   //  Get the box, fail with a warning if it is not found.
   const boxes = await getBoxes();
@@ -37,11 +39,30 @@ export async function start(options: StartOptions): Promise<BoxTransition> {
     );
   }
 
+  //  If the box has archived volumes, but we have not confirmed we will restore
+  //  them, fail.
+  if (box.hasArchivedVolumes && !enableRestore) {
+    throw new TerminatingWarning(
+      `This box has archived volumes which must be restored.
+This feature is experimental and may cause data loss.
+To accept this risk, re-run with the '--yes' parameter.`,
+    );
+  }
+
   //  Create an EC2 client.
   const { aws: awsConfig } = await getConfiguration();
   const client = new EC2Client(awsConfig);
 
-  //  Send the 'stop instances' command. Find the status of the stopping
+  //  If we must restore volumes, do so now.
+  if (box.hasArchivedVolumes) {
+    debug(`preparing to restore archived volumes for ${box.instanceId}...`);
+    console.log(
+      `  restoring archived volume(s)} for ${boxId}, this may take some time...`,
+    );
+    await restoreArchivedVolumes(box.instanceId);
+  }
+
+  //  Send the 'start instances' command. Find the status of the starting
   //  instance in the respose.
   debug(`preparing to start instance ${box.instanceId}...`);
   const response = await client.send(

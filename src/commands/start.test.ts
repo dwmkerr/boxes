@@ -37,7 +37,11 @@ describe("start", () => {
       .on(StartInstancesCommand)
       .resolves(instancesStartSteambox);
 
-    await start({ boxId: "steambox", wait: false });
+    await start({
+      boxId: "steambox",
+      wait: false,
+      restoreArchivedVolumes: false,
+    });
 
     expect(ec2Mock).toHaveReceivedCommand(DescribeInstancesCommand);
     expect(ec2Mock).toHaveReceivedCommandWith(StartInstancesCommand, {

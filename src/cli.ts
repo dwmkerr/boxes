@@ -83,10 +83,12 @@ program
   .description("Start a box")
   .argument("<boxId>", 'id of the box, e.g: "steambox"')
   .option("-w, --wait", "wait for box to complete startup", false)
+  .option("-y, --yes", "[experimental] confirm restore archived volumes", false)
   .action(async (boxId, options) => {
     const { instanceId, currentState, previousState } = await start({
       boxId,
       wait: options.wait,
+      restoreArchivedVolumes: options.yes,
     });
     console.log(
       `  ${theme.boxId(boxId)} (${instanceId}): ${theme.state(
@@ -109,7 +111,7 @@ program
         options,
         "yes",
         `The '--archive-volumes' feature is experimental and may cause data loss.
-  To accept this risk, re-run with the '--yes' parameter.`,
+To accept this risk, re-run with the '--yes' parameter.`,
       );
     }
     const { instanceId, currentState, previousState } = await stop({
