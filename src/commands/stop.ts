@@ -11,11 +11,11 @@ import { tagNames } from "../lib/constants";
 
 const debug = dbg("boxes:stop");
 
-export interface StopOptions {
+export type StopOptions = {
   boxId: string;
   wait: boolean;
   archiveVolumes: boolean;
-}
+};
 
 export async function stop(options: StopOptions): Promise<BoxTransition> {
   const { boxId, wait, archiveVolumes: enableArchive } = options;

@@ -9,18 +9,18 @@ import { restoreArchivedVolumes } from "../lib/volumes";
 
 const debug = dbg("boxes:start");
 
-export interface BoxTransition {
+export type BoxTransition = {
   boxId: string;
   instanceId: string | undefined;
   currentState: BoxState;
   previousState: BoxState;
-}
+};
 
-export interface StartOptions {
+export type StartOptions = {
   boxId: string;
   wait: boolean;
   restoreArchivedVolumes: boolean;
-}
+};
 
 export async function start(options: StartOptions): Promise<BoxTransition> {
   const { boxId, wait, restoreArchivedVolumes: enableRestore } = options;

@@ -372,7 +372,7 @@ Quick and dirty task-list.
 ### Alpha
 
 - [x] feat: 'import' option to tag a box and associated volumes
-- [ ] refactor: check use of 'interface' which should be 'type'
+- [x] refactor: check use of 'interface' which should be 'type'
 - [ ] testing: check ubox cost allocation tags for volumes
 - [ ] feat: boxes aws-console opens link eg (https://us-west-2.console.aws.amazon.com/ec2/home?region=us-west-2#InstanceDetails:instanceId=i-043a3c1ce6c9ea6ad)
 

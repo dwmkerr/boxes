@@ -29,11 +29,11 @@ export function awsStateToBoxState(awsState?: string): BoxState {
   }
 }
 
-export interface Box {
+export type Box = {
   boxId: string;
   name: string;
   state: BoxState;
   instanceId: string | undefined;
   hasArchivedVolumes: boolean;
   instance: Instance | undefined;
-}
+};
