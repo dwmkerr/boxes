@@ -36,7 +36,7 @@ program
     const boxes = await list();
     boxes.forEach((box) => {
       theme.printBoxHeading(box.boxId, box.state);
-      theme.printBoxDetail("Name", box.name);
+      theme.printBoxDetail("Name", box.name || "<unknown>");
       //  Only show DNS details if they exist (i.e. if the box is running).
       if (box.instance?.PublicDnsName && box.instance?.PublicIpAddress) {
         theme.printBoxDetail("DNS", box.instance.PublicDnsName);
@@ -84,8 +84,12 @@ program
   .command("start")
   .description("Start a box")
   .argument("<boxId>", 'id of the box, e.g: "steambox"')
-  .action(async (boxId) => {
-    const { instanceId, currentState, previousState } = await start(boxId);
+  .option("-w, --wait", "wait for box to complete startup", false)
+  .action(async (boxId, options) => {
+    const { instanceId, currentState, previousState } = await start({
+      boxId,
+      wait: options.wait,
+    });
     console.log(
       `  ${theme.boxId(boxId)} (${instanceId}): ${theme.state(
         previousState,
@@ -97,8 +101,12 @@ program
   .command("stop")
   .description("Stop a box")
   .argument("<boxId>", 'id of the box, e.g: "steambox"')
-  .action(async (boxId) => {
-    const { instanceId, currentState, previousState } = await stop(boxId);
+  .option("-w, --wait", "wait for box to complete startup", false)
+  .action(async (boxId, options) => {
+    const { instanceId, currentState, previousState } = await stop({
+      boxId,
+      wait: options.wait,
+    });
     console.log(
       `  ${theme.boxId(boxId)} (${instanceId}): ${theme.state(
         previousState,

@@ -1,5 +1,5 @@
 import dbg from "debug";
-import { EC2Client, DescribeInstancesCommand, Tag } from "@aws-sdk/client-ec2";
+import { EC2Client, DescribeInstancesCommand } from "@aws-sdk/client-ec2";
 import { Box, awsStateToBoxState } from "../box";
 import { TerminatingWarning } from "./errors";
 import { getConfiguration } from "../configuration";
@@ -18,7 +18,7 @@ export async function getBoxes(): Promise<Box[]> {
       // IncludeAllInstances: true,
       Filters: [
         {
-          Name: "tag:boxes.boxid",
+          Name: tagNames.boxId,
           Values: ["*"],
         },
       ],
@@ -46,7 +46,7 @@ export async function getBoxes(): Promise<Box[]> {
     return {
       boxId: tags[tagNames.boxId],
       instanceId: i?.InstanceId,
-      name: tags?.["Name"] || "<unknown>", //TODO better to just handle this in the CLI code not here
+      name: tags?.["Name"],
       state: awsStateToBoxState(i?.State?.Name),
       hasArchivedVolumes: tags.hasOwnProperty(tagNames.volumeArchives),
       instance: i,

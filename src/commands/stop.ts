@@ -4,10 +4,19 @@ import { TerminatingWarning } from "../lib/errors";
 import { getBoxes } from "../lib/get-boxes";
 import { awsStateToBoxState } from "../box";
 import { getConfiguration } from "../configuration";
+import { BoxTransition } from "./start";
+import { waitForInstanceState } from "../lib/aws-helpers";
 
 const debug = dbg("boxes:stop");
 
-export async function stop(boxId: string) {
+export interface StopOptions {
+  boxId: string;
+  wait: boolean;
+}
+
+export async function stop(options: StopOptions): Promise<BoxTransition> {
+  const { boxId, wait } = options;
+
   //  Get the box, fail with a warning if it is not found.
   const boxes = await getBoxes();
   const box = boxes.find((b) => b.boxId === boxId);
@@ -38,6 +47,15 @@ export async function stop(boxId: string) {
   const stoppingInstance = response.StoppingInstances?.find(
     (si) => si.InstanceId === box.instanceId,
   );
+
+  //  If the wait flag has been specified, wait for the instance to enter
+  //  the 'started' state.
+  if (wait) {
+    console.log(
+      `  waiting for ${boxId} to shutdown - this may take some time...`,
+    );
+    waitForInstanceState(client, box.instanceId, "stopped");
+  }
 
   return {
     boxId,

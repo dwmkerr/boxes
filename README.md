@@ -55,6 +55,10 @@ $ boxes start steambox
   steambox (i-098e8d30d5e399b03): stopped -> pending
 ```
 
+Options:
+
+- `--wait`: wait for instance to complete startup
+
 ### `boxes stop`
 
 Run `boxes start <id>` to stop a box:
@@ -63,6 +67,10 @@ Run `boxes start <id>` to stop a box:
 $ boxes stop steambox
   steambox (i-098e8d30d5e399b03): running -> stopping
 ```
+
+Options:
+
+- `--wait`: wait for instance to complete shutdown
 
 ### `boxes info`
 
@@ -364,7 +372,7 @@ Quick and dirty task-list.
 
 ### Beta
 
-- [ ] 'wait' flag for start/stop to wait until operation complete, default to 1hr
+- [ ] 'wait' flag for start/stop to wait until operation complete - default to 1hr and document the timeout info
 
 ### Later
 
@@ -389,6 +397,8 @@ This would be demo-able.
 
 ### Epic - Volume Management
 
+- [x] test '-wait' on start/stop and doc
+- [ ] 'start' can now check for 'has archived volumes' and restore if available, this is the next big one
 - [ ] propagate tags w/test
 - [ ] delete tag on volume restore...
 - [ ] ...so that we can auto restore volumes when calling 'start' - which will need to wait for the volumes to be ready
