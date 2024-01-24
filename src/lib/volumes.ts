@@ -11,6 +11,7 @@ import {
   DescribeInstancesCommand,
   AttachVolumeCommand,
   DeleteSnapshotCommand,
+  Tag,
 } from "@aws-sdk/client-ec2";
 import { getConfiguration } from "../configuration";
 import { TerminatingWarning } from "./errors";
@@ -89,15 +90,11 @@ export async function getDetachableVolumes(
 export async function snapshotTagDeleteVolumes(
   instanceId: string,
   volumes: DetachableVolume[],
-  tags: Record<string, string>[],
+  tags: Tag[],
 ): Promise<SnapshottedAndDeletedVolume[]> {
   //  Create an EC2 client.
   const { aws: awsConfig } = await getConfiguration();
   const client = new EC2Client(awsConfig);
-  const awsTags = tags.map((tag) => ({
-    Key: tag.key,
-    Value: tag.value,
-  }));
   debug(`preparing to snapshot/tag/delete volumes for instance ${instanceId}`);
 
   debug(`waiting for instance ${instanceId} to be in 'stopped' state...`);
@@ -105,8 +102,6 @@ export async function snapshotTagDeleteVolumes(
     client,
     instanceId,
     "stopped",
-    5000,
-    720, // 5s*720 = 1hr
   );
   if (!instanceStopped) {
     throw new TerminatingWarning(
@@ -137,7 +132,7 @@ export async function snapshotTagDeleteVolumes(
           TagSpecifications: [
             {
               ResourceType: "snapshot",
-              Tags: awsTags,
+              Tags: tags,
             },
           ],
         }),

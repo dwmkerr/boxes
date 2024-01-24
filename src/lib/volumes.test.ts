@@ -115,7 +115,7 @@ describe("volumes", () => {
         },
       ];
 
-      const tags = [{ key: tagNames.boxId, value: "torrentbox" }];
+      const tags = [{ Key: tagNames.boxId, Value: "torrentbox" }];
       const result = await snapshotTagDeleteVolumes(
         instanceId,
         detachableVolumes,

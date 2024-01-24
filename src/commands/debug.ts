@@ -31,8 +31,7 @@ export async function debug(command: string, parameters: string[]) {
       return;
     }
 
-    //  TODO fix tag settings
-    const tags = [{ key: "boxes.boxid", value: "torrentbox" }];
+    const tags = [{ Key: "boxes.boxid", Value: "debug" }];
     console.log("Getting detachable volumes...");
     const detachableVolumes = await getDetachableVolumes(instanceId);
     logJson(detachableVolumes);
