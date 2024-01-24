@@ -31,6 +31,7 @@ The following commands are available for `boxes`:
 - [`boxes connect`](#boxes-list) - opens a box
 - [`boxes ssh`](#boxes-list) - helps initiate an SSH connection to a box
 - [`boxes costs`](#boxes-costs) - shows the costs accrued by each both this month
+- [`boxes import`](#boxes-import) - import and AWS instance and tag as a box
 
 ### `boxes list`
 
@@ -212,6 +213,19 @@ Shows the current configuration that has been loaded for `boxes`. Can be helpful
 }
 ```
 
+### `boxes import`
+
+Imports an AWS instance and tags as a box, also tags its attached volumes.
+
+```bash
+% boxes import i-066771b1f0f0668af ubuntubox
+  ubox (i-066771b1f0f0668af): imported successfully
+```
+
+Options:
+
+- `--override`: override tags on existing instances/volumes
+
 ## Configuration
 
 A local `boxes.json` file can be used for configuration. The following values are supported:
@@ -349,7 +363,7 @@ Development dependencies:
 
 `Argument of type... Types of property '...' are incompatible`
 
-Typically occurs if AWS SDK packages are not at the exact same number as the `@ask-sdk/types` version number. Update the package.json to use exactly the same version between all `@aws-sdk` libraries. Occassionally these libraries are still incompatible, in this case downgrade to a confirmed version that works such as `3.10.0`.
+Typically occurs if AWS SDK packages are not at the exact same number as the `@ask-sdk/types` version number. Update the package.json to use exactly the same version between all `@aws-sdk` libraries. Occasionally these libraries are still incompatible, in this case downgrade to a confirmed version that works such as `3.10.0`.
 
 ## TODO
 
@@ -357,22 +371,8 @@ Quick and dirty task-list.
 
 ### Alpha
 
-- [ ] feat: 'import' option to tag a box and update local config
-- [x] bug: stat/stop show 'pending' rather than 'stopped' due to order of logging
-- [x] feat: document copy password in connect, maybe better default off
-- [x] refactor: suck it up and use TS
-- [x] feat: read AWS region from config file, using node-configuration
-- [x] npm badge download link
-- [x] bug: package.json path
-- [x] build / lint / test / deploy pipeline
-- [x] screen recording of boxes list / stop / start / connect
-- [x] document how 'connect' works
-- [x] feat: ssh connect
-- [x] docs: make AWS screenshot a bit smaller in readme
-- [x] feat: some basic tests
-- [x] feat: Cost management tags configuration to allow pricing info TODO check cost allocation report
-- [x] build: check coverage working on main
-- [x] feat: flag or option to control spend, by enforcing a confirmation for usage of the 'cost' api
+- [x] feat: 'import' option to tag a box and associated volumes
+- [ ] refactor: check use of 'interface' which should be 'type'
 - [ ] testing: recreate steam box with cost allocation tag enabled (current cost  0.53 USD)
 - [ ] feat: boxes aws-console opens link eg (https://us-west-2.console.aws.amazon.com/ec2/home?region=us-west-2#InstanceDetails:instanceId=i-043a3c1ce6c9ea6ad)
 - [ ] bug: EBS devices not tagged -I've tagged two (manually) in jan - check w/ feb bill
@@ -380,6 +380,10 @@ Quick and dirty task-list.
 ### Beta
 
 - [ ] 'wait' flag for start/stop to wait until operation complete - default to 1hr and document the timeout info
+
+### Publish Blog
+
+- [ ] documentation on cost savings via archival
 
 ### Later
 
@@ -394,6 +398,7 @@ Quick and dirty task-list.
 - [ ] feat: aws profile in config file
 - [ ] epic: 'boxes create' to create from a template
 - [ ] refactor: find a better way to mock / inject config (rather than importing arbitrarily)
+- [ ] feat(import): save/update local config file
 
 ### Epic - Interactive Setup
 
@@ -402,20 +407,3 @@ Will add the tags - but will also add the tags to the volumes and will notify if
 Creates the local config.
 
 This would be demo-able.
-
-### Epic - Volume Management
-
-- [x] test '-wait' on start/stop and doc
-- [x] propagate tags w/test
-- [x] 'start' can now check for 'has archived volumes' and restore if available, this is the next big one
-- [x] delete tag on volume restore...
-- [x] ...so that we can auto restore volumes when calling 'start' - which will need to wait for the volumes to be ready
-- [x] auto-restore on start, this is a good incremental point to check-in, even
-      if backup is only via 'debug' and comes later
-- [x] rename functions to 'archive' and 'restore' syntax
-- [x] data loss warning and generalise the 'yes' flag
-- [x] delete snapshot on successful restore
-- [x] better logging for non-debug mode (warn user can take time)
-- [ ] calling 'detach/etc' fails if instance is not stopped or stopping as it doesn't try to stop the instance - must fail if state is not stopping or stopped
-- [ ] new task list - docs, function, parameters, cost saving info, etc
-- [x] complete stop/start unit tests
