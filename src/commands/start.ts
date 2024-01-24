@@ -53,6 +53,10 @@ export async function start(options: StartOptions): Promise<BoxTransition> {
   const startingInstances = response.StartingInstances?.find(
     (si) => si.InstanceId === box.instanceId,
   );
+  const previousState = awsStateToBoxState(
+    startingInstances?.PreviousState?.Name,
+  );
+  let currentState = awsStateToBoxState(startingInstances?.CurrentState?.Name);
 
   //  If the wait flag has been specified, wait for the instance to enter
   //  the 'started' state.
@@ -60,13 +64,14 @@ export async function start(options: StartOptions): Promise<BoxTransition> {
     console.log(
       `  waiting for ${boxId} to startup - this may take some time...`,
     );
-    waitForInstanceState(client, box.instanceId, "running");
+    await waitForInstanceState(client, box.instanceId, "running");
+    currentState = BoxState.Running; // hacky-ish, but we know it's stopped now...
   }
 
   return {
     boxId,
     instanceId: box.instanceId,
-    currentState: awsStateToBoxState(startingInstances?.CurrentState?.Name),
-    previousState: awsStateToBoxState(startingInstances?.PreviousState?.Name),
+    currentState,
+    previousState,
   };
 }

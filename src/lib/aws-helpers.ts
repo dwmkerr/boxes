@@ -52,8 +52,8 @@ export function snapshotDetailsFromTag(tagValue: string) {
 export async function waitForVolumeReady(
   client: EC2Client,
   volumeId: string,
-  interval = 5000,
-  maxAttempts = 60,
+  intervalMs: number = 5 * 1000,
+  timeoutMs: number = 60 * 1000,
 ) {
   //  When running unit tests in Jest we can return immediately as
   //  all service calls are mocked to correct values. This function
@@ -62,7 +62,8 @@ export async function waitForVolumeReady(
     return true;
   }
 
-  let attempts = 0;
+  const timeStart = new Date();
+  let currentMs = 0;
   let volumeState = "";
 
   do {
@@ -85,13 +86,22 @@ export async function waitForVolumeReady(
       return true;
     }
 
-    attempts++;
+    currentMs = new Date().getTime() - timeStart.getTime();
+    const currentSeconds = Math.round(currentMs / 1000);
     debug(
-      `waiting for volume ${volumeId} to be in a ready state (attempt ${attempts}/${maxAttempts})...`,
+      `waited ${currentSeconds}s/${
+        timeoutMs / 1000
+      }s for ${volumeId} to be in target state 'ready'...`,
     );
 
-    await new Promise((resolve) => setTimeout(resolve, interval));
-  } while (attempts < maxAttempts);
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  } while (currentMs <= timeoutMs);
+
+  debug(
+    `timeout after ${
+      currentMs / 1000
+    }s waiting for ${volumeId} to be in target state 'ready'`,
+  );
 
   return false;
 }
@@ -108,8 +118,8 @@ export async function waitForInstanceState(
   client: EC2Client,
   instanceId: string,
   targetState: EC2InstanceState,
-  interval = 5000,
-  maxAttempts = 60,
+  intervalMs: number = 5 * 1000,
+  timeoutMs: number = 60 * 1000,
 ) {
   //  When running unit tests in Jest we can return immediately as
   //  all service calls are mocked to correct values. This function
@@ -118,7 +128,8 @@ export async function waitForInstanceState(
     return true;
   }
 
-  let attempts = 0;
+  const timeStart = new Date();
+  let currentMs = 0;
 
   do {
     try {
@@ -142,16 +153,21 @@ export async function waitForInstanceState(
       );
     }
 
-    attempts++;
+    currentMs = new Date().getTime() - timeStart.getTime();
+    const currentSeconds = Math.round(currentMs / 1000);
     debug(
-      `waiting for instance ${instanceId} to be in target state '${targetState}' (attempt ${attempts}/${maxAttempts})...`,
+      `waited ${currentSeconds}s/${
+        timeoutMs / 1000
+      }s for ${instanceId} to be in target state '${targetState}'...`,
     );
 
-    await new Promise((resolve) => setTimeout(resolve, interval));
-  } while (attempts < maxAttempts);
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  } while (currentMs <= timeoutMs);
 
   debug(
-    `timeout waiting for instance ${instanceId} to be in the target state '${targetState}'`,
+    `timeout after ${
+      currentMs / 1000
+    }s waiting for ${instanceId} to be in target state '${targetState}'`,
   );
   return false;
 }

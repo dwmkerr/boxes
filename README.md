@@ -58,6 +58,9 @@ $ boxes start steambox
 Options:
 
 - `--wait`: wait for instance to complete startup
+- `--archive-volumes`: [experimental] detach, snapshot and delete instance volumes
+
+Note that the `--archive-volumes` option is experimental and may cause data loss.
 
 ### `boxes stop`
 
@@ -351,6 +354,7 @@ Quick and dirty task-list.
 
 ### Alpha
 
+- [ ] bug: stat/stop show 'pending' rather than 'stopped' due to order of logging
 - [x] feat: document copy password in connect, maybe better default off
 - [ ] refactor: suck it up and use TS
 - [ ] feat: read AWS region from config file, using node-configuration
@@ -376,6 +380,7 @@ Quick and dirty task-list.
 
 ### Later
 
+- [ ] refactor: 'wait' functions can be generalised to take a predicate that uses AWS calls and then share the same loop/logging/etc
 - [ ] refactor: make 'debug' command local/debug build only?
 - [ ] feat: 'import' command to take an instance ID and create local box config for it and tag the instance
 - [ ] docs: cost allocation tags blog post
@@ -398,8 +403,8 @@ This would be demo-able.
 ### Epic - Volume Management
 
 - [x] test '-wait' on start/stop and doc
-- [ ] 'start' can now check for 'has archived volumes' and restore if available, this is the next big one
 - [ ] propagate tags w/test
+- [ ] 'start' can now check for 'has archived volumes' and restore if available, this is the next big one
 - [ ] delete tag on volume restore...
 - [ ] ...so that we can auto restore volumes when calling 'start' - which will need to wait for the volumes to be ready
 - [ ] auto-restore on start, this is a good incremental point to check-in, even

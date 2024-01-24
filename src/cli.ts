@@ -15,9 +15,7 @@ import { TerminatingWarning } from "./lib/errors";
 import packageJson from "../package.json";
 import { BoxState } from "./box";
 import { assertConfirmation } from "./lib/cli-helpers";
-
-//  While we're developing, debug output is always enabled.
-dbg.enable("boxes*");
+import { getConfiguration } from "./configuration";
 
 const ERROR_CODE_WARNING = 1;
 const ERROR_CODE_CONNECTION = 2;
@@ -102,10 +100,22 @@ program
   .description("Stop a box")
   .argument("<boxId>", 'id of the box, e.g: "steambox"')
   .option("-w, --wait", "wait for box to complete startup", false)
+  .option("-a, --archive-volumes", "[experimental] archive volumes", false)
+  .option("-y, --yes", "confirm archive volumes", false)
   .action(async (boxId, options) => {
+    //  If archiving, demand confirmation.
+    if (options.archiveVolumes && !options.yes) {
+      await assertConfirmation(
+        options,
+        "yes",
+        `The '--archive-volumes' feature is experimental and may cause data loss.
+  To accept this risk, re-run with the '--yes' parameter.`,
+      );
+    }
     const { instanceId, currentState, previousState } = await stop({
       boxId,
       wait: options.wait,
+      archiveVolumes: options.archiveVolumes,
     });
     console.log(
       `  ${theme.boxId(boxId)} (${instanceId}): ${theme.state(
@@ -179,6 +189,18 @@ program
 
 async function run() {
   try {
+    //  We will quickly check configuration for debug tracing. If it throws we
+    //  will ignore for now, as later error handling will show the proper error
+    //  output to the user.
+    try {
+      const configuration = await getConfiguration();
+      if (configuration.debugEnable) {
+        dbg.enable(configuration.debugEnable);
+      }
+    } catch {
+      // no-op
+    }
+
     await program.parseAsync();
     // TODO(refactor): better error typing.
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any

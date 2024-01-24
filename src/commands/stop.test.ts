@@ -27,7 +27,7 @@ describe("stop", () => {
     mock.restore();
   });
 
-  test.skip("can stop boxes", async () => {
+  test("can stop boxes", async () => {
     //  Record fixtures with:
     //  AWS_PROFILE=dwmkerr aws ec2 describe-instances --filters "Name=tag:boxes.boxid,Values=*" > ./src/fixtures/aws-ec2-describe-instances.json
     //  aws ec2 stop-instances --instance-ids i-043a3c1ce6c9ea6ad | tee ./src/fixtures/instances-stop-steambox.json
@@ -37,7 +37,7 @@ describe("stop", () => {
       .on(StopInstancesCommand)
       .resolves(instancesStopSteambox);
 
-    await stop({ boxId: "steambox", wait: false });
+    await stop({ boxId: "steambox", wait: false, archiveVolumes: false });
 
     expect(ec2Mock).toHaveReceivedCommand(DescribeInstancesCommand);
     expect(ec2Mock).toHaveReceivedCommandWith(StopInstancesCommand, {

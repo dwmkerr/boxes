@@ -2,20 +2,23 @@ import dbg from "debug";
 import { EC2Client, StopInstancesCommand } from "@aws-sdk/client-ec2";
 import { TerminatingWarning } from "../lib/errors";
 import { getBoxes } from "../lib/get-boxes";
-import { awsStateToBoxState } from "../box";
+import { BoxState, awsStateToBoxState } from "../box";
 import { getConfiguration } from "../configuration";
 import { BoxTransition } from "./start";
 import { waitForInstanceState } from "../lib/aws-helpers";
+import { getDetachableVolumes, snapshotTagDeleteVolumes } from "../lib/volumes";
+import { tagNames } from "../lib/constants";
 
 const debug = dbg("boxes:stop");
 
 export interface StopOptions {
   boxId: string;
   wait: boolean;
+  archiveVolumes: boolean;
 }
 
 export async function stop(options: StopOptions): Promise<BoxTransition> {
-  const { boxId, wait } = options;
+  const { boxId, wait, archiveVolumes } = options;
 
   //  Get the box, fail with a warning if it is not found.
   const boxes = await getBoxes();
@@ -47,20 +50,41 @@ export async function stop(options: StopOptions): Promise<BoxTransition> {
   const stoppingInstance = response.StoppingInstances?.find(
     (si) => si.InstanceId === box.instanceId,
   );
+  const previousState = awsStateToBoxState(
+    stoppingInstance?.PreviousState?.Name,
+  );
+  let currentState = awsStateToBoxState(stoppingInstance?.CurrentState?.Name);
 
   //  If the wait flag has been specified, wait for the instance to enter
-  //  the 'started' state.
-  if (wait) {
+  //  the 'started' state. We also must wait if we are archiving.
+  if (wait || archiveVolumes) {
     console.log(
       `  waiting for ${boxId} to shutdown - this may take some time...`,
     );
-    waitForInstanceState(client, box.instanceId, "stopped");
+    await waitForInstanceState(client, box.instanceId, "stopped");
+    currentState = BoxState.Stopped; // hacky-ish, but we know it's stopped now...
+  }
+
+  //  If we are archiving the volumes, do so now before we try and stop the box.
+  //  Make sure to tag the snapshots with the box id so that we track its costs
+  //  and can restore the tag to the volume later.
+  if (archiveVolumes) {
+    const volumes = await getDetachableVolumes(box.instanceId);
+    console.log(
+      `  archiving ${volumes.length} volume(s), this may take some time...`,
+    );
+    await snapshotTagDeleteVolumes(box.instanceId, volumes, [
+      {
+        Key: tagNames.boxId,
+        Value: boxId,
+      },
+    ]);
   }
 
   return {
     boxId,
     instanceId: box.instanceId,
-    currentState: awsStateToBoxState(stoppingInstance?.CurrentState?.Name),
-    previousState: awsStateToBoxState(stoppingInstance?.PreviousState?.Name),
+    currentState,
+    previousState,
   };
 }
