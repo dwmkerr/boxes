@@ -21,6 +21,8 @@ import { importBox } from "./commands/import";
 const ERROR_CODE_WARNING = 1;
 const ERROR_CODE_CONNECTION = 2;
 
+const configuration = getConfiguration();
+
 const program = new Command();
 program
   .name("boxes")
@@ -103,9 +105,15 @@ program
   .description("Stop a box")
   .argument("<boxId>", 'id of the box, e.g: "steambox"')
   .option("-w, --wait", "wait for box to complete startup", false)
-  .option("-a, --archive-volumes", "[experimental] archive volumes", false)
+  .option(
+    "-a, --archive-volumes",
+    "[experimental] archive volumes",
+    configuration.archiveVolumesOnStop || false,
+  )
   .option("-y, --yes", "confirm archive volumes", false)
   .action(async (boxId, options) => {
+    console.log("archive is: ", configuration.archiveVolumesOnStop);
+
     //  If archiving, demand confirmation.
     if (options.archiveVolumes && !options.yes) {
       await assertConfirmation(
@@ -213,7 +221,6 @@ async function run() {
     //  will ignore for now, as later error handling will show the proper error
     //  output to the user.
     try {
-      const configuration = await getConfiguration();
       if (configuration.debugEnable) {
         dbg.enable(configuration.debugEnable);
       }

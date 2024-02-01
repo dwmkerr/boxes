@@ -1,6 +1,6 @@
-import { getConfiguration } from "../configuration";
+import { BoxesConfiguration, getConfiguration } from "../configuration";
 
-export async function config() {
-  const configuration = await getConfiguration();
+export async function config(): Promise<BoxesConfiguration> {
+  const configuration = getConfiguration();
   return configuration;
 }

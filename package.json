@@ -16,7 +16,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "test:debug": "NODE_OPTIONS='--experimental-vm-modules' node --inspect-brk node_modules/.bin/jest --runInBand",
-    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' node node_modules/.bin/jest --runInBand --watch --no-coverage",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch --no-coverage",
     "test:cov": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
     "tsc": "tsc",
     "relink": "npm run build && npm unlink boxes && npm link boxes"

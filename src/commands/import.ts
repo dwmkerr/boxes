@@ -21,8 +21,8 @@ export async function importBox(options: ImportOptions): Promise<void> {
   const { instanceId, boxId, overwrite } = options;
 
   //  Create an EC2 client.
-  const { aws: awsConfig } = await getConfiguration();
-  const client = new EC2Client(awsConfig);
+  const { aws: awsConfig } = getConfiguration();
+  const client = new EC2Client({ ...awsConfig });
 
   //  Get our AWS instances, we'll search for the instance and check for
   //  conflicts.

@@ -50,8 +50,8 @@ To accept this risk, re-run with the '--yes' parameter.`,
   }
 
   //  Create an EC2 client.
-  const { aws: awsConfig } = await getConfiguration();
-  const client = new EC2Client(awsConfig);
+  const { aws: awsConfig } = getConfiguration();
+  const client = new EC2Client({ ...awsConfig });
 
   //  If we must restore volumes, do so now.
   if (box.hasArchivedVolumes) {

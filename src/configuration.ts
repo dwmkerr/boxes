@@ -1,23 +1,49 @@
-import fs from "fs/promises";
+import fs from "fs";
 
-interface AwsConfig {
-  region: string | undefined;
+export interface BoxConfiguration {
+  connectUrl?: string;
+  username?: string;
+  password?: string;
+  sshCommand?: string;
 }
 
-export async function getConfiguration() {
+export interface AwsConfiguration {
+  region?: string;
+}
+
+export interface BoxesConfiguration {
+  boxes?: Record<string, BoxConfiguration>;
+  aws?: AwsConfiguration;
+  archiveVolumesOnStop?: boolean;
+  debugEnable?: string;
+}
+
+export function getConfiguration(): BoxesConfiguration {
   //  For now, box config is hard coded to the current location.
   const boxConfigPath = "./boxes.json";
-  const data = await fs.readFile(boxConfigPath, "utf8");
+  const data = fs.readFileSync(boxConfigPath, "utf8");
   const json = JSON.parse(data);
 
-  //  If we have an aws key and a region key, set it.
-  const awsRegion = json["aws"]?.["region"];
-  const awsConfig: AwsConfig = {
-    ...(awsRegion && { region: awsRegion }),
-  };
+  //  Map the boxes configuration.
+  const boxes = Object.getOwnPropertyNames(json?.boxes).reduce(
+    (acc: Record<string, BoxConfiguration>, boxId: string) => {
+      acc[boxId] = {
+        connectUrl: json?.boxes?.[boxId]?.connectUrl,
+        username: json?.boxes?.[boxId]?.username,
+        password: json?.boxes?.[boxId]?.password,
+        sshCommand: json?.boxes?.[boxId]?.sshCommand,
+      };
+      return acc;
+    },
+    {},
+  );
 
   return {
-    ...json,
-    aws: awsConfig,
+    boxes,
+    aws: {
+      region: json?.aws?.region,
+    },
+    archiveVolumesOnStop: json?.archiveVolumesOnStop,
+    debugEnable: json?.debugEnable,
   };
 }
