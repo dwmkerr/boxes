@@ -237,7 +237,9 @@ A local `boxes.json` file can be used for configuration. The following values ar
   },
   "aws": {
     "region": "us-west-2"
-  }
+  },
+  "archiveVolumesOnStop": true,
+  "debugEnable": "boxes*"
 }
 ```
 
@@ -371,10 +373,11 @@ Quick and dirty task-list.
 
 ### Alpha
 
+- [ ] feat: archive volumes by default flag in config
+- [ ] refactor: use node-configuration
 - [x] feat: 'import' option to tag a box and associated volumes
 - [x] refactor: check use of 'interface' which should be 'type'
 - [ ] testing: check ubox cost allocation tags for volumes
-- [ ] feat: boxes aws-console opens link eg (https://us-west-2.console.aws.amazon.com/ec2/home?region=us-west-2#InstanceDetails:instanceId=i-043a3c1ce6c9ea6ad)
 
 ### Beta
 
@@ -387,6 +390,7 @@ Quick and dirty task-list.
 ### Later
 
 - [ ] refactor: 'wait' functions can be generalised to take a predicate that uses AWS calls and then share the same loop/logging/etc
+- [ ] feat: boxes aws-console opens link eg (https://us-west-2.console.aws.amazon.com/ec2/home?region=us-west-2#InstanceDetails:instanceId=i-043a3c1ce6c9ea6ad)
 - [ ] refactor: make 'debug' command local/debug build only?
 - [ ] feat: 'import' command to take an instance ID and create local box config for it and tag the instance
 - [ ] docs: cost allocation tags blog post

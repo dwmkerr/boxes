@@ -1,6 +1,6 @@
 import dbg from "debug";
 import { getBoxes } from "../lib/get-boxes";
-import { getConfiguration } from "../configuration";
+import { getConfiguration } from "../lib/configuration";
 import { TerminatingWarning } from "../lib/errors";
 
 const debug = dbg("boxes:connect");
@@ -12,8 +12,8 @@ export async function connect(
 ) {
   //  First, we need to load box configuration. If it is missing, or we don't
   //  have configuration for the given box, we'll bail.
-  const boxesConfig = await getConfiguration();
-  const boxConfig = boxesConfig.boxes[boxId];
+  const boxesConfig = getConfiguration();
+  const boxConfig = boxesConfig?.boxes?.[boxId];
   if (!boxConfig) {
     throw new TerminatingWarning(
       `Unable to find box with id '${boxId}' in config file boxes.json`,
@@ -29,9 +29,16 @@ export async function connect(
 
   //  If the box instance is not available, we can't get the address to SSH
   //  to it.
-  if (!box.instance) {
+  if (!box.instance || !box.instance?.PublicDnsName) {
     throw new TerminatingWarning(
       `box is not availalble for SSH, current status is: ${box.state}`,
+    );
+  }
+
+  //  If there is not sufficient config, fail.
+  if (!boxConfig.connectUrl || !boxConfig.username) {
+    throw new TerminatingWarning(
+      `'connectUrl' and 'username' must be set in box config to connect via ssh`,
     );
   }
 
@@ -45,7 +52,7 @@ export async function connect(
 
   //  If the user has asked for the password to be copied, put it on the
   //  clipboard.
-  if (copyPassword) {
+  if (copyPassword && boxConfig.password) {
     const clipboard = (await import("clipboardy")).default;
     clipboard.writeSync(boxConfig.password);
   }

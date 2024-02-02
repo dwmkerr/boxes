@@ -5,7 +5,7 @@ import {
   EC2Client,
 } from "@aws-sdk/client-ec2";
 import { TerminatingWarning } from "../lib/errors";
-import { getConfiguration } from "../configuration";
+import { getConfiguration } from "../lib/configuration";
 import { tagsAsObject } from "../lib/aws-helpers";
 import { tagNames } from "../lib/constants";
 
@@ -21,8 +21,8 @@ export async function importBox(options: ImportOptions): Promise<void> {
   const { instanceId, boxId, overwrite } = options;
 
   //  Create an EC2 client.
-  const { aws: awsConfig } = await getConfiguration();
-  const client = new EC2Client(awsConfig);
+  const { aws: awsConfig } = getConfiguration();
+  const client = new EC2Client({ ...awsConfig });
 
   //  Get our AWS instances, we'll search for the instance and check for
   //  conflicts.

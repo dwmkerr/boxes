@@ -3,7 +3,7 @@ import {
   GetCostAndUsageCommand,
 } from "@aws-sdk/client-cost-explorer"; // ES Modules import
 import { TerminatingWarning } from "./errors";
-import { getConfiguration } from "../configuration";
+import { getConfiguration } from "./configuration";
 
 export function dateToLocalDateString(date: Date): string {
   const year = `${date.getFullYear()}`.padStart(4, "0");
@@ -31,8 +31,8 @@ export interface BoxCostDescription {
 export async function getBoxesCosts(
   options?: GetBoxesCostsOptions,
 ): Promise<BoxCostDescription[]> {
-  const { aws: awsConfig } = await getConfiguration();
-  const client = new CostExplorerClient(awsConfig);
+  const { aws: awsConfig } = getConfiguration();
+  const client = new CostExplorerClient({ ...awsConfig });
 
   //  If the caller has specified a year, we must also have a month.
   //  It is fine to just have a month on it's own - it'll default to

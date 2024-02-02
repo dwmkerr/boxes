@@ -3,7 +3,7 @@ import { EC2Client, StartInstancesCommand } from "@aws-sdk/client-ec2";
 import { TerminatingWarning } from "../lib/errors";
 import { getBoxes } from "../lib/get-boxes";
 import { BoxState, awsStateToBoxState } from "../box";
-import { getConfiguration } from "../configuration";
+import { getConfiguration } from "../lib/configuration";
 import { waitForInstanceState } from "../lib/aws-helpers";
 import { restoreArchivedVolumes } from "../lib/volumes";
 
@@ -50,8 +50,8 @@ To accept this risk, re-run with the '--yes' parameter.`,
   }
 
   //  Create an EC2 client.
-  const { aws: awsConfig } = await getConfiguration();
-  const client = new EC2Client(awsConfig);
+  const { aws: awsConfig } = getConfiguration();
+  const client = new EC2Client({ ...awsConfig });
 
   //  If we must restore volumes, do so now.
   if (box.hasArchivedVolumes) {

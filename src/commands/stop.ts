@@ -3,7 +3,7 @@ import { EC2Client, StopInstancesCommand } from "@aws-sdk/client-ec2";
 import { TerminatingWarning } from "../lib/errors";
 import { getBoxes } from "../lib/get-boxes";
 import { BoxState, awsStateToBoxState } from "../box";
-import { getConfiguration } from "../configuration";
+import { getConfiguration } from "../lib/configuration";
 import { BoxTransition } from "./start";
 import { waitForInstanceState } from "../lib/aws-helpers";
 import { getDetachableVolumes, archiveVolumes } from "../lib/volumes";
@@ -35,8 +35,8 @@ export async function stop(options: StopOptions): Promise<BoxTransition> {
   }
 
   //  Create an EC2 client.
-  const { aws: awsConfig } = await getConfiguration();
-  const client = new EC2Client(awsConfig);
+  const { aws: awsConfig } = getConfiguration();
+  const client = new EC2Client({ ...awsConfig });
 
   //  Send the 'stop instances' command. Find the status of the stopping
   //  instance in the respose.

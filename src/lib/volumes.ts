@@ -14,7 +14,7 @@ import {
   Tag,
   DeleteTagsCommand,
 } from "@aws-sdk/client-ec2";
-import { getConfiguration } from "../configuration";
+import { getConfiguration } from "./configuration";
 import { TerminatingWarning } from "./errors";
 import * as aws from "./aws-helpers";
 import { tagNames } from "./constants";
@@ -38,8 +38,8 @@ export async function getDetachableVolumes(
   instanceId: string,
 ): Promise<DetachableVolume[]> {
   //  Create an EC2 client.
-  const { aws: awsConfig } = await getConfiguration();
-  const client = new EC2Client(awsConfig);
+  const { aws: awsConfig } = getConfiguration();
+  const client = new EC2Client({ ...awsConfig });
 
   //  Get the volumes for the box.
   debug(`getting detachable volumes for ${instanceId}...`);
@@ -94,8 +94,8 @@ export async function archiveVolumes(
   tags: Tag[],
 ): Promise<SnapshottedAndDeletedVolume[]> {
   //  Create an EC2 client.
-  const { aws: awsConfig } = await getConfiguration();
-  const client = new EC2Client(awsConfig);
+  const { aws: awsConfig } = getConfiguration();
+  const client = new EC2Client({ ...awsConfig });
   debug(`preparing to snapshot/tag/delete volumes for instance ${instanceId}`);
 
   debug(`waiting for instance ${instanceId} to be in 'stopped' state...`);
@@ -185,8 +185,8 @@ export async function restoreArchivedVolumes(
   instanceId: string,
 ): Promise<RecreatedVolume[]> {
   //  Create an EC2 client.
-  const { aws: awsConfig } = await getConfiguration();
-  const client = new EC2Client(awsConfig);
+  const { aws: awsConfig } = getConfiguration();
+  const client = new EC2Client({ ...awsConfig });
   debug(`preparing to recreate volumes for instance ${instanceId}`);
 
   //  Get the details of the instance, we'll need the tags and AZ.

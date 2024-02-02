@@ -3,7 +3,7 @@
 //  used in the 'connect' function below.
 // import clipboard from "clipboardy";
 import { getBoxes } from "../lib/get-boxes";
-import { getConfiguration } from "../configuration";
+import { getConfiguration } from "../lib/configuration";
 import { TerminatingWarning } from "../lib/errors";
 
 export async function ssh(
@@ -13,8 +13,8 @@ export async function ssh(
 ) {
   //  First, we need to load box configuration. If it is missing, or we don't
   //  have configuration for the given box, we'll bail.
-  const boxesConfig = await getConfiguration();
-  const boxConfig = boxesConfig.boxes[boxId];
+  const boxesConfig = getConfiguration();
+  const boxConfig = boxesConfig?.boxes?.[boxId];
   if (!boxConfig) {
     throw new TerminatingWarning(
       `Unable to find box with id '${boxId}' in config file boxes.json`,
@@ -30,9 +30,16 @@ export async function ssh(
 
   //  If the box instance is not available, we can't get the address to SSH
   //  to it.
-  if (!box.instance) {
+  if (!box.instance || !box.instance?.PublicDnsName) {
     throw new TerminatingWarning(
       `box is not availalble for SSH, current status is: ${box.state}`,
+    );
+  }
+
+  //  If there is not sufficient config, fail.
+  if (!boxConfig.sshCommand || !boxConfig.username) {
+    throw new TerminatingWarning(
+      `'sshCommand' and 'username' must be set in box config to connect via ssh`,
     );
   }
 
