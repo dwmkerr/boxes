@@ -3,7 +3,7 @@
 //  used in the 'connect' function below.
 // import clipboard from "clipboardy";
 import { getBoxes } from "../lib/get-boxes";
-import { getConfiguration } from "../configuration";
+import { getConfiguration } from "../lib/configuration";
 import { TerminatingWarning } from "../lib/errors";
 
 export async function ssh(

@@ -3,7 +3,7 @@ import {
   GetCostAndUsageCommand,
 } from "@aws-sdk/client-cost-explorer"; // ES Modules import
 import { TerminatingWarning } from "./errors";
-import { getConfiguration } from "../configuration";
+import { getConfiguration } from "./configuration";
 
 export function dateToLocalDateString(date: Date): string {
   const year = `${date.getFullYear()}`.padStart(4, "0");

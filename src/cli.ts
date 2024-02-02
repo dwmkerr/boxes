@@ -15,7 +15,7 @@ import { TerminatingWarning } from "./lib/errors";
 import packageJson from "../package.json";
 import { BoxState } from "./box";
 import { assertConfirmation } from "./lib/cli-helpers";
-import { getConfiguration } from "./configuration";
+import { getConfiguration } from "./lib/configuration";
 import { importBox } from "./commands/import";
 
 const ERROR_CODE_WARNING = 1;

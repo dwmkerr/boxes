@@ -2,7 +2,7 @@ import dbg from "debug";
 import { EC2Client, DescribeInstancesCommand } from "@aws-sdk/client-ec2";
 import { Box, awsStateToBoxState } from "../box";
 import { TerminatingWarning } from "./errors";
-import { getConfiguration } from "../configuration";
+import { getConfiguration } from "./configuration";
 import { tagsAsObject } from "./aws-helpers";
 import { tagNames } from "./constants";
 const debug = dbg("boxes");

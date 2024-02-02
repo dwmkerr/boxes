@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 
 export interface BoxConfiguration {
   connectUrl?: string;
@@ -20,8 +21,12 @@ export interface BoxesConfiguration {
 
 export function getConfiguration(): BoxesConfiguration {
   //  For now, box config is hard coded to the current location.
-  const boxConfigPath = "./boxes.json";
-  const data = fs.readFileSync(boxConfigPath, "utf8");
+  const boxConfigPath = path.join(path.resolve(), "./boxes.json");
+
+  //  Mock-fs doesn't mock UTF-8 properly in Node 20, so skip the parameter
+  //  and manually toString the result...
+  //  https://github.com/tschaub/mock-fs/issues/377
+  const data = fs.readFileSync(boxConfigPath /*, "utf8"*/).toString("utf-8");
   const json = JSON.parse(data);
 
   //  Map the boxes configuration.

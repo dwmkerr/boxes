@@ -1,6 +1,6 @@
 import dbg from "debug";
 import { getBoxes } from "../lib/get-boxes";
-import { getConfiguration } from "../configuration";
+import { getConfiguration } from "../lib/configuration";
 import { TerminatingWarning } from "../lib/errors";
 
 const debug = dbg("boxes:connect");

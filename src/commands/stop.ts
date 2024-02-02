@@ -3,7 +3,7 @@ import { EC2Client, StopInstancesCommand } from "@aws-sdk/client-ec2";
 import { TerminatingWarning } from "../lib/errors";
 import { getBoxes } from "../lib/get-boxes";
 import { BoxState, awsStateToBoxState } from "../box";
-import { getConfiguration } from "../configuration";
+import { getConfiguration } from "../lib/configuration";
 import { BoxTransition } from "./start";
 import { waitForInstanceState } from "../lib/aws-helpers";
 import { getDetachableVolumes, archiveVolumes } from "../lib/volumes";

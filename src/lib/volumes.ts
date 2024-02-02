@@ -14,7 +14,7 @@ import {
   Tag,
   DeleteTagsCommand,
 } from "@aws-sdk/client-ec2";
-import { getConfiguration } from "../configuration";
+import { getConfiguration } from "./configuration";
 import { TerminatingWarning } from "./errors";
 import * as aws from "./aws-helpers";
 import { tagNames } from "./constants";

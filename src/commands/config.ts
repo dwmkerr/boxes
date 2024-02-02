@@ -1,4 +1,4 @@
-import { BoxesConfiguration, getConfiguration } from "../configuration";
+import { BoxesConfiguration, getConfiguration } from "../lib/configuration";
 
 export async function config(): Promise<BoxesConfiguration> {
   const configuration = getConfiguration();

@@ -5,7 +5,7 @@ import {
   EC2Client,
 } from "@aws-sdk/client-ec2";
 import { TerminatingWarning } from "../lib/errors";
-import { getConfiguration } from "../configuration";
+import { getConfiguration } from "../lib/configuration";
 import { tagsAsObject } from "../lib/aws-helpers";
 import { tagNames } from "../lib/constants";
 
