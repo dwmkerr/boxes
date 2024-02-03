@@ -4,17 +4,42 @@
       "connectUrl": "dcv://${host}:8443",
       "username": "Administrator",
       "password": "<secret>",
-      "sshCommand": "open rdp://${host}"
+      "sshCommand": "open rdp://${host}",
+      "commands": {
+        "dcv": {
+          "command": "dcv://${host}:8443",
+          "copyCommand": "password"
+        }
+      }
     },
     "torrentbox": {
       "connectUrl": "http://${username}@${host}:9091/transmission/web/",
       "username": "admin",
       "password": "<secret>",
       "sshCommand": "ssh -i ~/.ssh/mykey.pem ec2-user@${host}"
+    },
+    "ubox": {
+      "commands": {
+        "open": {
+          "command": "http://${username}@${host}:9091/transmission/web/",
+          "copyCommand": "http://${username}@${host}:9091/transmission/web/",
+          "parameters": {
+            "username": "ubuntu"
+          }
+        }
+      },
+      "sshCommand": "ssh -i ~/repos/github/dwmkerr/dwmkerr/tf-aws-dwmkerr/dwmkerr_aws_key.pem ubuntu@${host}",
+      "username": "ubuntu"
     }
   },
   "aws": {
     "region": "us-west-2"
+  },
+  "commands": {
+    "ssh": {
+      "command": "ssh ${host}",
+      "copyCommand": "ssh ${host}"
+    }
   }
 }
 

@@ -410,3 +410,39 @@ Will add the tags - but will also add the tags to the volumes and will notify if
 Creates the local config.
 
 This would be demo-able.
+
+### Epic - Box Commands
+
+Box commands are like `npm run` commands - a command can be added to box config that can be run for any box, or commands can be created a per-box level. Commands have a structure as below:
+
+```
+{
+  command: "ssh -i ec2-user@${host}",
+  copyCommand: "ssh -i ec2-user@${host}",
+  parameters: {
+    keyPath: "~/.ssh/mykey.pem"
+  }
+}
+```
+
+Commands are run with:
+
+```
+boxes run <boxId> <commandName> <parameters...> --dry-run
+```
+
+Parameters can be provided in the command definition, loaded from AWS data (such as host or IP) or potentially provided via environment variables.
+
+These commands would remove the need for dedicated commands such as `ssh` or `connect`.
+
+- [ ] feat: run command
+- [ ] feat: exec command in shell
+- [ ] feat: spread args
+- [ ] docs: command
+- [ ] docs: parameters
+- [ ] docs: instance parameters
+- [ ] docs: instance shorthand parameters
+- [ ] docs: copy command
+
+
+

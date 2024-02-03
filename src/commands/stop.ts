@@ -35,7 +35,7 @@ export async function stop(options: StopOptions): Promise<BoxTransition> {
   }
 
   //  Create an EC2 client.
-  const { aws: awsConfig } = getConfiguration();
+  const { aws: awsConfig } = await getConfiguration();
   const client = new EC2Client({ ...awsConfig });
 
   //  Send the 'stop instances' command. Find the status of the stopping

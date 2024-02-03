@@ -31,7 +31,7 @@ export interface BoxCostDescription {
 export async function getBoxesCosts(
   options?: GetBoxesCostsOptions,
 ): Promise<BoxCostDescription[]> {
-  const { aws: awsConfig } = getConfiguration();
+  const { aws: awsConfig } = await getConfiguration();
   const client = new CostExplorerClient({ ...awsConfig });
 
   //  If the caller has specified a year, we must also have a month.

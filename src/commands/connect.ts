@@ -12,7 +12,7 @@ export async function connect(
 ) {
   //  First, we need to load box configuration. If it is missing, or we don't
   //  have configuration for the given box, we'll bail.
-  const boxesConfig = getConfiguration();
+  const boxesConfig = await getConfiguration();
   const boxConfig = boxesConfig?.boxes?.[boxId];
   if (!boxConfig) {
     throw new TerminatingWarning(

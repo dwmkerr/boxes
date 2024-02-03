@@ -38,7 +38,7 @@ export async function getDetachableVolumes(
   instanceId: string,
 ): Promise<DetachableVolume[]> {
   //  Create an EC2 client.
-  const { aws: awsConfig } = getConfiguration();
+  const { aws: awsConfig } = await getConfiguration();
   const client = new EC2Client({ ...awsConfig });
 
   //  Get the volumes for the box.
@@ -94,7 +94,7 @@ export async function archiveVolumes(
   tags: Tag[],
 ): Promise<SnapshottedAndDeletedVolume[]> {
   //  Create an EC2 client.
-  const { aws: awsConfig } = getConfiguration();
+  const { aws: awsConfig } = await getConfiguration();
   const client = new EC2Client({ ...awsConfig });
   debug(`preparing to snapshot/tag/delete volumes for instance ${instanceId}`);
 
@@ -185,7 +185,7 @@ export async function restoreArchivedVolumes(
   instanceId: string,
 ): Promise<RecreatedVolume[]> {
   //  Create an EC2 client.
-  const { aws: awsConfig } = getConfiguration();
+  const { aws: awsConfig } = await getConfiguration();
   const client = new EC2Client({ ...awsConfig });
   debug(`preparing to recreate volumes for instance ${instanceId}`);
 
