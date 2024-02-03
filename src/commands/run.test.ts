@@ -5,13 +5,13 @@ import { mockClient } from "aws-sdk-client-mock";
 import "aws-sdk-client-mock-jest";
 import { run } from "./run";
 
-// jest.mock("../lib/configuration", () => {
-//   return { getConfiguration: async () => ({}) };
-// });
-
 import describeInstancesResponse from "../fixtures/get-boxes-describe-instances-started.json";
+import { TerminatingWarning } from "../lib/errors";
 
 describe("run", () => {
+  //  Record fixtures with:
+  //  AWS_PROFILE=dwmkerr aws ec2 describe-instances --filters "Name=tag:boxes.boxid,Values=*" > ./src/fixtures/get-boxes-describe-instances-started.json
+
   beforeEach(() => {
     const boxesPath = path.join(path.resolve(), "./boxes.json");
     mock({
@@ -25,9 +25,25 @@ describe("run", () => {
     mock.restore();
   });
 
+  test("throws expected errors with invalid parameters", async () => {
+    mockClient(EC2Client)
+      .on(DescribeInstancesCommand)
+      .resolves(describeInstancesResponse);
+
+    await expect(
+      run({ boxId: "steambox", commandName: "scp", copyCommand: false }),
+    ).rejects.toThrow(
+      new TerminatingWarning(`Unable to find command configuration for 'scp'`),
+    );
+
+    await expect(
+      run({ boxId: "missingbox", commandName: "ssh", copyCommand: false }),
+    ).rejects.toThrow(
+      new TerminatingWarning(`Unable to find box with id 'missingbox'`),
+    );
+  });
+
   test("can run the dcv command", async () => {
-    //  Record fixtures with:
-    //  AWS_PROFILE=dwmkerr aws ec2 describe-instances --filters "Name=tag:boxes.boxid,Values=*" > ./src/fixtures/get-boxes-describe-instances-started.json
     const ec2Mock = mockClient(EC2Client)
       .on(DescribeInstancesCommand)
       .resolves(describeInstancesResponse);

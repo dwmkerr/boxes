@@ -17,17 +17,9 @@ export type RunOptions = {
 export async function run(options: RunOptions) {
   const { boxId, commandName, copyCommand: copy, args } = options;
 
-  //  First, we need to load box configuration. If it is missing, or we don't
-  //  have configuration for the given box, we'll bail.
+  //  Find the command from our configuration.
   const boxesConfig = await getConfiguration();
   const boxConfig = boxesConfig?.boxes?.[boxId];
-  if (!boxConfig) {
-    throw new TerminatingWarning(
-      `Unable to find box with id '${boxId}' in config file boxes.json`,
-    );
-  }
-
-  //  Find the command from our configuration.
   const commandConfiguration =
     boxConfig?.commands?.[commandName] || boxesConfig?.commands?.[commandName];
   if (!commandConfiguration) {
