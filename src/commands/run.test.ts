@@ -12,16 +12,6 @@ import { run } from "./run";
 import describeInstancesResponse from "../fixtures/get-boxes-describe-instances-started.json";
 
 describe("run", () => {
-  //  Mock the config file. For some reason this test fails if we use 'beforeEach'
-  //  unlike the others (mock-fs has been quite fussy).
-  const mockConfig = () => {
-    const boxesPath = path.join(path.resolve(), "./boxes.json");
-    mock({
-      [boxesPath]: mock.load(
-        path.join(path.resolve(), "./src/fixtures/boxes.json"),
-      ),
-    });
-  };
   beforeEach(() => {
     const boxesPath = path.join(path.resolve(), "./boxes.json");
     mock({
@@ -36,7 +26,6 @@ describe("run", () => {
   });
 
   test("can run the dcv command", async () => {
-    // mockConfig();
     //  Record fixtures with:
     //  AWS_PROFILE=dwmkerr aws ec2 describe-instances --filters "Name=tag:boxes.boxid,Values=*" > ./src/fixtures/get-boxes-describe-instances-started.json
     const ec2Mock = mockClient(EC2Client)
@@ -52,30 +41,29 @@ describe("run", () => {
     expect(command).toEqual(
       "dcv://ec2-34-215-135-99.us-west-2.compute.amazonaws.com:8443",
     );
-    expect(copyCommand).toEqual("test");
+    expect(copyCommand).toEqual("password");
 
     expect(ec2Mock).toHaveReceivedCommand(DescribeInstancesCommand);
   });
 
-  // test("can run the shared ssh command", async () => {
-  //   // mockConfig();
-  //   const ec2Mock = mockClient(EC2Client)
-  //     .on(DescribeInstancesCommand)
-  //     .resolves(describeInstancesResponse);
+  test("can run the shared ssh command", async () => {
+    const ec2Mock = mockClient(EC2Client)
+      .on(DescribeInstancesCommand)
+      .resolves(describeInstancesResponse);
 
-  //   const { command, copyCommand } = await run({
-  //     boxId: "steambox",
-  //     commandName: "ssh",
-  //     copyCommand: true,
-  //   });
+    const { command, copyCommand } = await run({
+      boxId: "steambox",
+      commandName: "ssh",
+      copyCommand: true,
+    });
 
-  //   expect(command).toEqual(
-  //     "ssh ec2-34-215-135-99.us-west-2.compute.amazonaws.com",
-  //   );
-  //   expect(copyCommand).toEqual(
-  //     "ssh ec2-34-215-135-99.us-west-2.compute.amazonaws.com",
-  //   );
+    expect(command).toEqual(
+      "ssh ec2-34-215-135-99.us-west-2.compute.amazonaws.com",
+    );
+    expect(copyCommand).toEqual(
+      "ssh ec2-34-215-135-99.us-west-2.compute.amazonaws.com",
+    );
 
-  //   expect(ec2Mock).toHaveReceivedCommand(DescribeInstancesCommand);
-  // });
+    expect(ec2Mock).toHaveReceivedCommand(DescribeInstancesCommand);
+  });
 });
