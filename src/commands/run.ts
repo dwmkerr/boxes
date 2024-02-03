@@ -51,9 +51,11 @@ export async function run(options: RunOptions) {
   );
 
   //  If the user has requested to copy the command, copy it now.
-  if (copy) {
-    // const clipboard = (await import("clipboardy")).default;
-    // clipboard.writeSync(command);
+  //  Do not copy to the clipboard in jest as it seems to fail:
+  //  https://github.com/jestjs/jest/issues/11438
+  if (copy && process.env.JEST_WORKER_ID === undefined) {
+    const clipboard = (await import("clipboardy")).default;
+    clipboard.writeSync(command);
   }
 
   return { command, copyCommand };
