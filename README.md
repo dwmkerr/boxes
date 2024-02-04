@@ -436,9 +436,9 @@ Parameters can be provided in the command definition, loaded from AWS data (such
 These commands would remove the need for dedicated commands such as `ssh` or `connect`.
 
 - [x] feat: run command
-- [ ] feat: exec command in shell, test with ssh echo whoami
+- [x] feat: exec command in shell, test with ssh echo whoami
 - [x] feat: spread remaining args
-- [ ] refactor: retire ssh/connect
+- [x] refactor: retire ssh/connect
 - [ ] docs: command
 - [ ] docs: parameters
 - [ ] docs: instance parameters
