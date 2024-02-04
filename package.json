@@ -2,7 +2,7 @@
   "name": "@dwmkerr/boxes",
   "description": "Quick access to your cloud instances.",
   "type": "commonjs",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "main": "./build/cli.js",
   "bin": {
     "boxes": "./build/cli.js"
