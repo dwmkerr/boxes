@@ -1,9 +1,4 @@
-import { getBoxes } from "./lib/get-boxes";
-
-export async function list() {
-  const boxes = await getBoxes();
-  return boxes;
-}
+import { getBoxes } from "../lib/get-boxes";
 
 export async function info(boxId: string) {
   const boxes = await getBoxes();

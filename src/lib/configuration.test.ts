@@ -6,7 +6,6 @@ describe("configuration", () => {
   //  Mock the config file.
   beforeEach(() => {
     const boxesPath = path.join(path.resolve(), "./boxes.json");
-    console.log("Mocking config at", boxesPath);
     mock({
       [boxesPath]: mock.load(
         path.join(path.resolve(), "./src/fixtures/boxes.json"),
@@ -18,22 +17,38 @@ describe("configuration", () => {
     mock.restore();
   });
 
-  test("can load configuration", () => {
-    const configuration = getConfiguration();
+  test("can load configuration", async () => {
+    const configuration = await getConfiguration();
 
     expect(configuration).toMatchObject({
       boxes: {
         steambox: {
-          connectUrl: "dcv://${host}:8443",
-          username: "Administrator",
-          password: "<secret>",
-          sshCommand: "open rdp://${host}",
+          commands: {
+            connect: {
+              command: "dcv://Administrator@${host}:8443",
+              copyCommand: "password",
+            },
+          },
         },
-        torrentbox: {
-          connectUrl: "http://${username}@${host}:9091/transmission/web/",
-          username: "admin",
-          password: "<secret>",
-          sshCommand: "ssh -i ~/.ssh/mykey.pem ec2-user@${host}",
+        torrentbox: {},
+        ubox: {
+          commands: {
+            connect: {
+              command: "open vnc://ubuntu@${host}:5901",
+              copyCommand: "password",
+            },
+            ssh: {
+              command:
+                "ssh -i /Users/dwmkerr/repos/github/dwmkerr/dwmkerr/tf-aws-dwmkerr/dwmkerr_aws_key.pem ubuntu@${host}",
+              copyCommand: "password",
+            },
+          },
+        },
+      },
+      commands: {
+        ssh: {
+          command: "ssh ${host}",
+          copyCommand: "ssh ${host}",
         },
       },
       aws: {

@@ -25,11 +25,10 @@ npm install @dwmkerr/boxes
 The following commands are available for `boxes`:
 
 - [`boxes list`](#boxes-list) - shows all boxes and their status
+- [`boxes run`](#boxes-run) - run a command on a box
 - [`boxes start`](#boxes-list) - starts a box
 - [`boxes stop`](#boxes-list) - stops a box
 - [`boxes info`](#boxes-list) - shows info on a box
-- [`boxes connect`](#boxes-list) - opens a box
-- [`boxes ssh`](#boxes-list) - helps initiate an SSH connection to a box
 - [`boxes costs`](#boxes-costs) - shows the costs accrued by each both this month
 - [`boxes import`](#boxes-import) - import and AWS instance and tag as a box
 
@@ -46,6 +45,75 @@ torrentbox: running
   DNS: ec2-34-221-110-58.us-west-2.compute.amazonaws.com
   IP: 34.221.110.58
 ```
+
+### `boxes run`
+
+The `run` command can be used to run any configured operation on a box. You can use it to quickly SSH into boxes, open pages in a browser or run any other command that can be run from a shell. Commands themselves are defined in the configuration file, either at the level of a box or globally for all boxes.
+
+The syntax to run a command is below:
+
+```
+boxes run <boxId> <commandName> <parameters...>
+```
+
+Commands can be executed by providing the `-e` or `--exec` flag, and commands can copy data to the clipboard with the `-c` or `--copy-command` parameter.
+
+Some examples for the configuration file are:
+
+
+```
+{
+  "ssh": {
+    "command": "ssh -i ${identity} ec2-user@${host} ${*}",
+    "copyCommand": "ssh -i ${identity} ec2-user@${host} ${*}"
+    "parameters": {
+      "identity": "mykey.pem "
+  },
+  "dcv": {
+    "command": "open -i mykey.pem dcv://Administrator@${host}:8443",
+    "copyCommand": "${password}"
+    "parameters": {
+      "password": "<password>"
+    }
+  }
+}
+```
+
+To SSH into a box and run `whoami` use:
+
+```
+boxes run ubuntu ssh 'whoami' -e
+```
+
+This will execute the `ssh` command. Pass `-c` to also copy that SSH command to the clipboard.
+
+To open a DCV application to connect to a box use:
+
+```
+boxes run steambox dcv 'whoami' -ec
+```
+
+This will open the user's DCV app and copy a password to the clipboard.
+
+Parameters for commands can be specified in the commands configuration or provided as arguments to the `run` command. Some parameter examples are:
+
+| Parameter                   | Description                                               |
+|-----------------------------|-----------------------------------------------------------|
+| `${password}`               | The value of the `password` parameter in the config file. |
+| `${0:user}`                 | The value of the first argument, which is called `user`.  |
+| `${*}`                      | All arguments passed to the `run` command.                |
+| `${instance.PublicDnsName}` | The host name of the AWS instance.                        |
+| `${host}`                   | Shorthand for `${instance.PublicDnsName}`.                |
+| `${ip}`                     | Shorthand for `${instance.PublicIpAddress}`.              |
+
+Any of the variables on the AWS Instance object can be provided with an `instance` parameter, such as `${instance.PublicDnsName}`. Nested parameters from the AWS Instance are not yet supported.
+
+Options:
+
+- `--exec`: run the command in the current shell
+- `--copy-command`: copy the `copyCommand` from the command configuration to the clipboard
+
+Be cautious with the `--copy-command` parameter as the copy command will be shown in the console.
 
 ### `boxes start`
 
@@ -95,85 +163,6 @@ $ boxes info steambox
     ImageId: 'ami-0fae5ac34f36d5963',
     InstanceId: 'i-098e8d30d5e399b03',
     InstanceType: 'g4ad.xlarge',
-...
-```
-
-### `boxes connect`
-
-The `boxes connect` command can be used to open an interface to a box. For this command to work, you need a `boxes.json` file that specifies _how_ to connect. As an example, the following configuration file shows how to connect to a Torrent Box:
-
-```json
-{
-  "boxes": {
-    "torrentbox": {
-      "connectUrl": "http://${username}@${host}:9091/transmission/web/",
-      "username": "dwmkerr"
-    }
-  }
-}
-```
-
-When you run `boxes connect torrentbox` the `connectUrl` will be expanded with the actual hostname of the running instance, as well as any other parameters in the configuration file (such as the username). Pass the `--open` flag to open the connect URL directly:
-
-```bash
-% boxes connect --open torrentbox
-{
-  url: 'http://dwmkerr@ec2-34-221-110-58.us-west-2.compute.amazonaws.com:9091/transmission/web/',
-  username: 'dwmkerr'
-}
-# the system configured browser will open with the url above...
-```
-
-If you want to be able to quickly access a password or credential, put a 'password' field in your config:
-
-```
-{
-  "boxes": {
-    "torrentbox": {
-      "connectUrl": "http://${username}@${host}:9091/transmission/web/",
-      "username": "dwmkerr",
-      "password": "<secret>"
-    }
-  }
-}
-```
-
-Now you can add the `--copy-password` or `-p` flag and the password will be copied to the clipboard:
-
-```
-% boxes connect --open -p torrentbox
-{
-  url: 'http://dwmkerr@ec2-34-221-110-58.us-west-2.compute.amazonaws.com:9091/transmission/web/',
-  username: 'dwmkerr',
-  password: '<secret>'
-}
-
-...password copied to clipbord
-```
-
-Be careful with this option as it will print the password to the screen and leave it on your clipboard.
-
-
-### `boxes ssh`
-
-The `boxes ssh` command can be used to quickly ssh into a box. Provide the ssh command that should be used in the `boxes.json` file:
-
-```json
-{
-  "boxes": {
-    "torrentbox": {
-      "sshCommand": "ssh -i /Users/dwmkerr/repos/github/dwmkerr/dwmkerr/tf-aws-dwmkerr/dwmkerr_aws_key.pem ec2-user@${host}"
-    }
-  }
-}
-```
-
-Running `boxes ssh torrentbox` will expand the command with the host. You can then copy the output and paste into the shell, or run a new shell with this output directly:
-
-
-```bash
-% bash -c "${boxes ssh torrentbox}"
-Last login: Thu Nov  9 06:13:09 2023 from 135-180-121-112.fiber.dynamic.sonic.net
 ...
 ```
 

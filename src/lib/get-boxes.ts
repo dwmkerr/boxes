@@ -8,7 +8,7 @@ import { tagNames } from "./constants";
 const debug = dbg("boxes");
 
 export async function getBoxes(): Promise<Box[]> {
-  const { aws: awsConfig } = getConfiguration();
+  const { aws: awsConfig } = await getConfiguration();
   const client = new EC2Client({ ...awsConfig });
 
   debug(`preparing to describe instances with '${tagNames.boxId}' tags...`);
