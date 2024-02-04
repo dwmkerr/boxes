@@ -106,8 +106,6 @@ describe("commands", () => {
     });
 
     test("correctly expands arguments", () => {
-      //  A command like this should unescape the dollar so that we can refer
-      //  to the environment variable in the tokenised command.
       const config: CommandConfiguration = {
         command: "ssh ${0:user}@${1:host}",
       };
@@ -117,9 +115,29 @@ describe("commands", () => {
       expect(command).toEqual("ssh user@10.0.0.1");
     });
 
+    test("correctly spreads arguments", () => {
+      const config: CommandConfiguration = {
+        command: "ssh ${user}@${host} ${*}",
+        parameters: {
+          user: "dwmkerr",
+        },
+      };
+      const instance: Instance = {
+        PublicDnsName: "myhost",
+      };
+      const args = ["echo", "whoami"];
+
+      const { command } = buildCommand(config, instance, args);
+      expect(command).toEqual("ssh dwmkerr@myhost echo whoami");
+      const { command: commandWithoutArgs } = buildCommand(
+        config,
+        instance,
+        undefined,
+      );
+      expect(commandWithoutArgs).toEqual("ssh dwmkerr@myhost ");
+    });
+
     test("correctly expands the clipboard", () => {
-      //  A command like this should unescape the dollar so that we can refer
-      //  to the environment variable in the tokenised command.
       const instance: Instance = {
         PublicDnsName: "myhost",
         PublicIpAddress: "10.0.0.1",

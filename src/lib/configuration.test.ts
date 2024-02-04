@@ -23,22 +23,26 @@ describe("configuration", () => {
     expect(configuration).toMatchObject({
       boxes: {
         steambox: {
-          connectUrl: "dcv://${host}:8443",
-          username: "Administrator",
-          password: "<secret>",
-          sshCommand: "open rdp://${host}",
           commands: {
-            dcv: {
-              command: "dcv://${host}:8443",
+            connect: {
+              command: "dcv://Administrator@${host}:8443",
               copyCommand: "password",
             },
           },
         },
-        torrentbox: {
-          connectUrl: "http://${username}@${host}:9091/transmission/web/",
-          username: "admin",
-          password: "<secret>",
-          sshCommand: "ssh -i ~/.ssh/mykey.pem ec2-user@${host}",
+        torrentbox: {},
+        ubox: {
+          commands: {
+            connect: {
+              command: "open vnc://ubuntu@${host}:5901",
+              copyCommand: "password",
+            },
+            ssh: {
+              command:
+                "ssh -i /Users/dwmkerr/repos/github/dwmkerr/dwmkerr/tf-aws-dwmkerr/dwmkerr_aws_key.pem ubuntu@${host}",
+              copyCommand: "password",
+            },
+          },
         },
       },
       commands: {

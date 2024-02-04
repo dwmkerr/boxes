@@ -2,19 +2,21 @@
 
 import dbg from "debug";
 import { Command } from "commander";
-import { list, info } from "./commands";
+
+import { config } from "./commands/config";
 import { debug } from "./commands/debug";
+import { getCosts } from "./commands/getCosts";
+import { info } from "./commands/info";
+import { list } from "./commands/list";
+import { run } from "./commands/run";
 import { start } from "./commands/start";
 import { stop } from "./commands/stop";
-import { ssh } from "./commands/ssh";
-import { config } from "./commands/config";
-import { getCosts } from "./commands/getCosts";
-import { connect } from "./commands/connect";
+
 import theme from "./theme";
 import { TerminatingWarning } from "./lib/errors";
 import packageJson from "../package.json";
 import { BoxState } from "./box";
-import { assertConfirmation } from "./lib/cli-helpers";
+import { assertConfirmation, execCommand } from "./lib/cli-helpers";
 import { BoxesConfiguration, getConfiguration } from "./lib/configuration";
 import { importBox } from "./commands/import";
 
@@ -54,29 +56,29 @@ const cli = async (program: Command, configuration: BoxesConfiguration) => {
     .action(info);
 
   program
-    .command("connect")
-    .description("Connect to a box")
+    .command("run")
+    .description("Run a command on a box")
     .argument("<boxId>", 'id of the box, e.g: "steambox"')
-    .option("-o, --open", "open connection", false)
-    .option("-c, --copy-password", "copy password to clipboard", false)
-    .action(async (boxId, options) => {
-      const result = await connect(boxId, options.open, options.copyPassword);
-      console.log(result);
-      if (options.copyPassword) {
+    .argument("<commandName>", 'command name, e.g: "ssh"')
+    .argument("[args...]", "command arguments")
+    .option("-e, --exec", "execute command", false)
+    .option("-c, --copy-command", "copy command to clipboard", false)
+    .action(async (boxId, commandName, args, options) => {
+      const { command, copyCommand } = await run({
+        boxId,
+        commandName,
+        copyCommand: options.copyCommand,
+        args: args,
+      });
+      console.log(`${commandName}:`);
+      console.log(`  ${command}`);
+      if (options.copyCommand) {
         console.log();
-        console.log("...password copied to clipboard");
+        console.log(`Copied to clipboard: ${copyCommand}`);
       }
-    });
-
-  program
-    .command("ssh")
-    .description("Establish an SSH connection to a box")
-    .argument("<boxId>", 'id of the box, e.g: "steambox"')
-    .option("-o, --open", "open connection", false)
-    .option("-c, --copy-command", "copy ssh command to clipboard", false)
-    .action(async (boxId, options) => {
-      const result = await ssh(boxId, options.copyCommand, options.open);
-      console.log(result);
+      if (options.exec) {
+        execCommand(command);
+      }
     });
 
   program
@@ -218,7 +220,7 @@ To accept charges, re-run with the '--yes' parameter.`,
     });
 };
 
-async function run() {
+async function main() {
   try {
     const configuration = await getConfiguration();
 
@@ -254,4 +256,4 @@ async function run() {
     }
   }
 }
-run().catch(console.error);
+main().catch(console.error);

@@ -11,7 +11,6 @@ import { TerminatingWarning } from "../lib/errors";
 describe("run", () => {
   //  Record fixtures with:
   //  AWS_PROFILE=dwmkerr aws ec2 describe-instances --filters "Name=tag:boxes.boxid,Values=*" > ./src/fixtures/get-boxes-describe-instances-started.json
-
   beforeEach(() => {
     const boxesPath = path.join(path.resolve(), "./boxes.json");
     mock({
@@ -43,19 +42,19 @@ describe("run", () => {
     );
   });
 
-  test("can run the dcv command", async () => {
+  test("can run the connect command", async () => {
     const ec2Mock = mockClient(EC2Client)
       .on(DescribeInstancesCommand)
       .resolves(describeInstancesResponse);
 
     const { command, copyCommand } = await run({
       boxId: "steambox",
-      commandName: "dcv",
+      commandName: "connect",
       copyCommand: true,
     });
 
     expect(command).toEqual(
-      "dcv://ec2-34-215-135-99.us-west-2.compute.amazonaws.com:8443",
+      "dcv://Administrator@ec2-34-215-135-99.us-west-2.compute.amazonaws.com:8443",
     );
     expect(copyCommand).toEqual("password");
 

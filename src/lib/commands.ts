@@ -18,6 +18,15 @@ function expandCommand(
     const token = match[1];
     const tokenText = "${" + token + "}";
 
+    //  If our token is a spread argument, spread it.
+    if (token === "*") {
+      expandedCommand = expandedCommand.replace(
+        tokenText,
+        args?.join(" ") || "",
+      );
+      continue;
+    }
+
     //  If our token is an argument, try and expand it.
     if (token.indexOf(":") !== -1) {
       const [argPosition, argName] = token.split(":");

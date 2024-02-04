@@ -47,7 +47,7 @@ export async function run(options: RunOptions) {
   //  https://github.com/jestjs/jest/issues/11438
   if (copy && process.env.JEST_WORKER_ID === undefined) {
     const clipboard = (await import("clipboardy")).default;
-    clipboard.writeSync(command);
+    clipboard.writeSync(copyCommand || "");
   }
 
   return { command, copyCommand };
