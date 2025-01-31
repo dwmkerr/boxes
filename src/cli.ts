@@ -58,12 +58,12 @@ const cli = async (program: Command, configuration: BoxesConfiguration) => {
   program
     .command("run")
     .description("Run a command on a box")
-    .argument("<boxId>", 'id of the box, e.g: "steambox"')
     .argument("<commandName>", 'command name, e.g: "ssh"')
+    .argument("<boxId>", 'id of the box, e.g: "steambox"')
     .argument("[args...]", "command arguments")
     .option("-e, --exec", "execute command", false)
     .option("-c, --copy-command", "copy command to clipboard", false)
-    .action(async (boxId, commandName, args, options) => {
+    .action(async (commandName, boxId, args, options) => {
       const { command, copyCommand } = await run({
         boxId,
         commandName,

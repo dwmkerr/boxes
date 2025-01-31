@@ -343,7 +343,7 @@ Runtime dependencies are:
 
 - `@aws-sdk/client-ec2` - AWS APIs
 - `colors` - to add colour to console output
-- `commander` - for quickly scaffold CLI apps
+- `commander` - to quickly scaffold CLI apps
 - `open` - to open browsers / applications cross-platform
 
 Development dependencies:
@@ -362,15 +362,17 @@ Quick and dirty task-list.
 
 ### Alpha
 
-- [ ] feat: archive volumes by default flag in config
+- [ ] don't colorise output when non-terminal, e.g. run `watch -n 5 boxes ls` to see bug
+- [x] feat: archive volumes by default flag in config
 - [ ] refactor: use node-configuration
 - [x] feat: 'import' option to tag a box and associated volumes
 - [x] refactor: check use of 'interface' which should be 'type'
 - [ ] testing: check ubox cost allocation tags for volumes
+- [ ] refactor: rename all 'archive' to 'archive volumes'? Also check against what we will call 'Load/Unload'
 
 ### Beta
 
-- [ ] 'wait' flag for start/stop to wait until operation complete - default to 1hr and document the timeout info
+- [x] 'wait' flag for start/stop to wait until operation complete - default to 1hr and document the timeout info
 
 ### Publish Blog
 
@@ -399,3 +401,18 @@ Will add the tags - but will also add the tags to the volumes and will notify if
 Creates the local config.
 
 This would be demo-able.
+
+### Epic - Load/Unload
+
+- [ ] feat: unload box to AMI image
+- [ ] feat: create box from AMI image
+- [ ] feat: cross-region support? Example: move steambox to Australia or UK
+
+### Epic - Interactive Commands
+
+Run `boxes` to run commands interactively.
+
+### Fix - Costs
+
+Show month/year before report
+Check 'other' values, should actually be assigned to EC2-other but for the box
