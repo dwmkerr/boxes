@@ -1,5 +1,8 @@
-import fs from "fs/promises";
+import os from "os";
+import fs from "fs";
+import fsPromises from "fs/promises";
 import path from "path";
+import { TerminatingWarning } from "./errors";
 
 export interface BoxConfiguration {
   connectUrl?: string;
@@ -29,12 +32,20 @@ export interface BoxesConfiguration {
 
 export async function getConfiguration(): Promise<BoxesConfiguration> {
   //  For now, box config is hard coded to the current location.
-  const boxConfigPath = path.join(path.resolve(), "./boxes.json");
+  const boxConfigPaths = [
+    path.join(path.resolve(), "./boxes.json"),
+    path.join(os.homedir(), ".boxes.json"),
+  ];
+  const candidates = boxConfigPaths.find(fs.existsSync);
+  if (!candidates) {
+    throw new TerminatingWarning(`Failed to find config at: ${boxConfigPaths}`);
+  }
+  const boxConfigPath = boxConfigPaths[0];
 
   //  Mock-fs doesn't mock UTF-8 properly in Node 20, so skip the parameter
   //  and manually toString the result...
   //  https://github.com/tschaub/mock-fs/issues/377
-  const data = await fs.readFile(boxConfigPath, "utf8");
+  const data = await fsPromises.readFile(boxConfigPath, "utf8");
   const json = JSON.parse(data);
 
   //  Map the boxes configuration.
