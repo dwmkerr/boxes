@@ -10,6 +10,7 @@ export interface BoxConfiguration {
   password?: string;
   sshCommand?: string;
   commands?: Record<string, CommandConfiguration>;
+  region?: string;
 }
 
 export interface CommandConfiguration {
@@ -57,6 +58,7 @@ export async function getConfiguration(): Promise<BoxesConfiguration> {
         password: json?.boxes?.[boxId]?.password,
         sshCommand: json?.boxes?.[boxId]?.sshCommand,
         commands: json?.boxes?.[boxId]?.commands,
+        region: json?.boxes?.[boxId]?.region,
       };
       return acc;
     },
