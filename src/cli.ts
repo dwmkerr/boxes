@@ -208,11 +208,13 @@ To accept charges, re-run with the '--yes' parameter.`,
     .argument("<instanceId>", "the aws instance id")
     .argument("<boxId>", "the box id to tag the instance with")
     .option("-o, --overwrite", "overwrite existing box tags", false)
+    .option("-r, --region <region>", "AWS region for the instance")
     .action(async (instanceId, boxId, options) => {
       await importBox({
         boxId,
         instanceId,
         overwrite: options.overwrite,
+        region: options.region,
       });
       console.log(
         `  ${theme.boxId(boxId)} (${instanceId}): imported successfully`,
