@@ -68,7 +68,11 @@ export async function getConfiguration(): Promise<BoxesConfiguration> {
   return {
     boxes,
     aws: {
-      region: json?.aws?.region,
+      // Standard precedence: config file < env vars < command line
+      region:
+        process.env.AWS_REGION ||
+        process.env.AWS_DEFAULT_REGION ||
+        json?.aws?.region,
     },
     commands: json?.commands,
     archiveVolumesOnStop: json?.archiveVolumesOnStop,
