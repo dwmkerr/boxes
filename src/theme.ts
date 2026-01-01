@@ -34,6 +34,11 @@ function printBoxDetail(name: string, value: string) {
   console.log(`  ${colors.white(name)}: ${colors.white(value)}`);
 }
 
+function printCommandDetail(name: string, description?: string) {
+  const desc = description ? ` - ${description}` : "";
+  console.log(`    ${colors.cyan(name)}${colors.gray(desc)}`);
+}
+
 function printWarning(message: string) {
   console.log(colors.yellow(message));
 }
@@ -47,6 +52,7 @@ export default {
   state,
   printBoxHeading,
   printBoxDetail,
+  printCommandDetail,
   printWarning,
   printError,
 };

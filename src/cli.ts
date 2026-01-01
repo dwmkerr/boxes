@@ -17,7 +17,11 @@ import { TerminatingWarning } from "./lib/errors";
 import packageJson from "../package.json";
 import { BoxState } from "./box";
 import { assertConfirmation, execCommand } from "./lib/cli-helpers";
-import { BoxesConfiguration, getConfiguration } from "./lib/configuration";
+import {
+  BoxesConfiguration,
+  getConfiguration,
+  getCommandsForBox,
+} from "./lib/configuration";
 import { importBox } from "./commands/import";
 
 const ERROR_CODE_WARNING = 1;
@@ -45,6 +49,14 @@ const cli = async (program: Command, configuration: BoxesConfiguration) => {
         }
         if (box.hasArchivedVolumes) {
           theme.printBoxDetail("Archived Volumes", "true");
+        }
+        const commands = getCommandsForBox(configuration, box.boxId);
+        const commandNames = Object.keys(commands);
+        if (commandNames.length > 0) {
+          theme.printBoxDetail("Commands", "");
+          for (const name of commandNames) {
+            theme.printCommandDetail(name, commands[name].description);
+          }
         }
       });
     });

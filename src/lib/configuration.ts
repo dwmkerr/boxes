@@ -17,6 +17,7 @@ export interface CommandConfiguration {
   command: string;
   copyCommand?: string;
   parameters?: Record<string, string>;
+  description?: string;
 }
 
 export interface AwsConfiguration {
@@ -77,5 +78,15 @@ export async function getConfiguration(): Promise<BoxesConfiguration> {
     commands: json?.commands,
     archiveVolumesOnStop: json?.archiveVolumesOnStop,
     debugEnable: json?.debugEnable,
+  };
+}
+
+export function getCommandsForBox(
+  config: BoxesConfiguration,
+  boxId: string,
+): Record<string, CommandConfiguration> {
+  return {
+    ...config.commands,
+    ...config.boxes?.[boxId]?.commands,
   };
 }
