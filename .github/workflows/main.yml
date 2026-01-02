@@ -60,9 +60,6 @@ jobs:
           name: build-artifacts-${{ matrix.node-version }}
           path: |
             ./artifacts/
-        # Only upload artifacts for the build on the LTS version (we don't
-        # need artifacts per node version).
-        if: ${{ matrix.node-version == env.NODE_LTS_VERSION }}
 
   upload-coverage:
     # The 'upload coverage' job will only run if successfully complete the
@@ -82,7 +79,7 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: build-artifacts-22.x
+          name: build-artifacts-${{ env.NODE_LTS_VERSION }}
           path: ./artifacts
 
       # Upload coverage.
