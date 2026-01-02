@@ -11,6 +11,7 @@ Migrate a box to a different AWS region for lower latency.
 
 ```bash
 BOX_NAME="ubuntu"
+NEW_BOX_NAME="ubuntu-uk"  # Use different name to avoid conflicts
 SOURCE_REGION="us-west-2"
 TARGET_REGION="eu-west-1"
 
@@ -33,7 +34,7 @@ boxes stop $BOX_NAME --wait
 AMI_ID=$(aws ec2 create-image \
   --region $SOURCE_REGION \
   --instance-id $INSTANCE_ID \
-  --name "${BOX_NAME}-migration-$(date +%Y%m%d)" \
+  --name "${BOX_NAME}-migration-$(date +%Y%m%d-%H%M%S)" \
   --no-reboot \
   --query 'ImageId' --output text)
 
@@ -59,44 +60,63 @@ echo "Copying to $TARGET_REGION: $NEW_AMI_ID"
 aws ec2 wait image-available --region $TARGET_REGION --image-ids $NEW_AMI_ID
 ```
 
-## Step 4: Launch in Target Region
+## Step 4: Setup Target Region
+
+Example commands, for one of my boxes:
 
 ```bash
-# Get your key pair and security group in target region (create if needed)
-KEY_NAME="boxes"
-SECURITY_GROUP="boxes-sg"
+# Import your SSH key (uses existing public key)
+aws ec2 import-key-pair \
+  --region $TARGET_REGION \
+  --key-name boxes \
+  --public-key-material fileb://~/.ssh/boxes.pub
 
-# Launch instance
+# Create security group
+SG_ID=$(aws ec2 create-security-group \
+  --region $TARGET_REGION \
+  --group-name boxes-sg \
+  --description "Boxes security group" \
+  --query 'GroupId' --output text)
+
+# Allow SSH and RDP
+aws ec2 authorize-security-group-ingress --region $TARGET_REGION --group-id $SG_ID --protocol tcp --port 22 --cidr 0.0.0.0/0
+aws ec2 authorize-security-group-ingress --region $TARGET_REGION --group-id $SG_ID --protocol tcp --port 3389 --cidr 0.0.0.0/0
+```
+
+## Step 5: Launch in Target Region
+
+```bash
 NEW_INSTANCE_ID=$(aws ec2 run-instances \
   --region $TARGET_REGION \
   --image-id $NEW_AMI_ID \
   --instance-type t3.medium \
-  --key-name $KEY_NAME \
-  --security-groups $SECURITY_GROUP \
+  --key-name boxes \
+  --security-group-ids $SG_ID \
   --query 'Instances[0].InstanceId' --output text)
 
 echo "Launched: $NEW_INSTANCE_ID"
 
-# Import to boxes
-boxes import $NEW_INSTANCE_ID $BOX_NAME --region $TARGET_REGION
+# Import to boxes with new name
+boxes import $NEW_INSTANCE_ID $NEW_BOX_NAME --region $TARGET_REGION
 ```
 
-## Step 5: Update Config
+## Step 6: Update Config
 
-Add region to the box in `boxes.json`:
+Add the new box to `boxes.json` with its region:
 
 ```bash
-# Using jq to update the region
-jq --arg region "$TARGET_REGION" \
-  '.boxes.ubuntu.region = $region' boxes.json > tmp.json && mv tmp.json boxes.json
+# Copy existing box config and add region
+jq --arg name "$NEW_BOX_NAME" --arg region "$TARGET_REGION" \
+  '.boxes[$name] = .boxes.ubuntu + {region: $region}' boxes.json > tmp.json && mv tmp.json boxes.json
 ```
 
-Or manually:
+Or manually add a new entry:
 
 ```json
 {
   "boxes": {
-    "ubuntu": {
+    "ubuntu": { ... },
+    "ubuntu-uk": {
       "region": "eu-west-1",
       "commands": { ... }
     }
@@ -104,7 +124,7 @@ Or manually:
 }
 ```
 
-## Step 6: Cleanup Old Region
+## Step 7: Cleanup Old Region
 
 ```bash
 # Terminate old instance

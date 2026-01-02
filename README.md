@@ -380,6 +380,7 @@ Quick and dirty task-list.
 
 ### Later
 
+- [ ] refactor: use `ora` spinner for CLI progress (single-line updates with ✓/✗ on completion)
 - [ ] refactor: 'wait' functions can be generalised to take a predicate that uses AWS calls and then share the same loop/logging/etc
 - [ ] feat: boxes aws-console opens link eg (https://us-west-2.console.aws.amazon.com/ec2/home?region=us-west-2#InstanceDetails:instanceId=i-043a3c1ce6c9ea6ad)
 - [ ] refactor: make 'debug' command local/debug build only?
