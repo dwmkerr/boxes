@@ -15,27 +15,26 @@ permissions:
 # defines which Node version to use for these steps (which should be the current
 # Node Long-Term Support version).
 env:
-  NODE_LTS_VERSION: 20.x
+  NODE_LTS_VERSION: 22.x
 
 jobs:
   validate-main:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
         node-version:
-          - 16.x
-          - 18.x
           - 20.x
+          - 22.x
 
-    steps: 
+    steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Setup the right version of Node.js.
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
@@ -56,39 +55,36 @@ jobs:
 
       # Upload the artifacts folder.
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts
+          name: build-artifacts-${{ matrix.node-version }}
           path: |
             ./artifacts/
-        # Only upload artifacts for the build on the LTS version (we don't
-        # need artifacts per node version).
-        if: ${{ matrix.node-version == env.NODE_LTS_VERSION }}
 
   upload-coverage:
     # The 'upload coverage' job will only run if successfully complete the
     # 'validate-main' job.
     needs: validate-main
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
       # The source files must be present for codecov to be upload the file list
       # properly, otherwise no coverage is reported and the "unusable report"
       # error is shown. Took ages to work this out.
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Download the build artifacts.
       - name: Download Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: build-artifacts
+          name: build-artifacts-${{ env.NODE_LTS_VERSION }}
           path: ./artifacts
 
       # Upload coverage.
       - name: Upload Coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           directory: ./artifacts/coverage
 
@@ -98,23 +94,22 @@ jobs:
     # merge.
     needs: validate-main
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Release Please
-        uses: google-github-actions/release-please-action@v3
+        uses: google-github-actions/release-please-action@v4
         id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: node
-          package-name: crosswords-js
-      
+
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Setup the right version of Node.js.
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_LTS_VERSION }}
           registry-url: 'https://registry.npmjs.org'
