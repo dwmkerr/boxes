@@ -11,6 +11,7 @@ import { list } from "./commands/list";
 import { run } from "./commands/run";
 import { start } from "./commands/start";
 import { stop } from "./commands/stop";
+import { deleteBox } from "./commands/delete";
 
 import theme from "./theme";
 import { TerminatingWarning } from "./lib/errors";
@@ -231,6 +232,31 @@ To accept charges, re-run with the '--yes' parameter.`,
       console.log(
         `  ${theme.boxId(boxId)} (${instanceId}): imported successfully`,
       );
+    });
+
+  program
+    .command("delete")
+    .description("Delete a box, its instance, and associated snapshots")
+    .argument("<boxId>", 'id of the box, e.g: "steambox"')
+    .option("-y, --yes", "confirm deletion", false)
+    .action(async (boxId, options) => {
+      //  Demand confirmation - this is a destructive operation.
+      await assertConfirmation(
+        options,
+        "yes",
+        `This will permanently delete the box '${boxId}', terminate its EC2 instance, and delete associated snapshots.
+This action cannot be undone. To confirm, re-run with the '--yes' parameter.`,
+      );
+
+      const { instanceId, deletedSnapshots } = await deleteBox({ boxId });
+      console.log(
+        `  ${theme.boxId(boxId)} (${instanceId}): deleted successfully`,
+      );
+      if (deletedSnapshots.length > 0) {
+        console.log(
+          `  Deleted ${deletedSnapshots.length} associated snapshot(s)`,
+        );
+      }
     });
 };
 
