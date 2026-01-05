@@ -4,13 +4,11 @@ import {
   TerminateInstancesCommand,
   DescribeSnapshotsCommand,
   DeleteSnapshotCommand,
-  DescribeInstancesCommand,
 } from "@aws-sdk/client-ec2";
 import { TerminatingWarning } from "../lib/errors";
 import { getBoxes } from "../lib/get-boxes";
 import { getConfiguration } from "../lib/configuration";
 import { tagNames } from "../lib/constants";
-import * as aws from "../lib/aws-helpers";
 
 const debug = dbg("boxes:delete");
 
